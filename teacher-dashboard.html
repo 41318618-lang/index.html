@@ -41,4 +41,131 @@
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #f9
+        th { background: #f9f9f9; }
+
+        #toast { display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 2000; }
+    </style>
+</head>
+<body>
+    <div id="toast">✅ 系統處理成功。</div>
+
+    <div class="sidebar">
+        <h2>極元教職員系統<br><span style="font-size: 0.8rem; color: #fff;">王閔弘 副校長 授權端</span></h2>
+        <a href="#" class="menu-item">📊 教學與研究主控台</a>
+        <a href="#" class="menu-item" onclick="openModal('syllabusModal')">📁 課程大綱上傳</a>
+        <a href="#" class="menu-item" onclick="openModal('gradeModal')">📝 結算與成績登錄</a>
+        <a href="official-docs.html" class="menu-item" style="color: #c5a059;">✅ 校務公文與假單簽核 ➔</a>
+        <a href="#" class="menu-item" onclick="openModal('travelModal')">✈️ 出國開會差勤申請</a>
+        <a href="#" class="menu-item">👨‍🔬 TA 助教聘任與核薪</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="user-info">王閔弘 副校長 / 專任特聘講座教授 (教職員工號：T0001)</div>
+            <a href="index.html" class="logout-btn">登出系統</a>
+        </div>
+
+        <div class="grid">
+            <div class="card" onclick="openModal('syllabusModal')">
+                <div class="badge" style="background: #dc2626;">待辦</div>
+                <h3>📁 上傳課程大綱 (Syllabus)</h3>
+                <p>114下學期 選課即將開始，請上傳「量子演算法實作」中英文課程大綱與評分標準。</p>
+            </div>
+            <div class="card" onclick="window.location.href='official-docs.html'">
+                <div class="badge" style="background: #c5a059; color:#000;">Level 5 權限</div>
+                <h3>✅ 公文與假單簽核系統</h3>
+                <p>審核導生請假、校內人事公文，以及勝發集團千億預算數位電子簽核。</p>
+            </div>
+            <div class="card" onclick="openModal('travelModal')">
+                <h3>✈️ 差勤與出國申請</h3>
+                <p>申請出國參與國際學術會議 (IEEE/ACM)，或前往勝發海外廠區視察之公假與補助。</p>
+            </div>
+            <div class="card" onclick="alert('本月碩博士生 TA (教學助理) 薪資 NT$ 65,000 已透過勝發財稅系統自動核撥。')">
+                <h3>👨‍🔬 TA 與 RA 薪資核撥</h3>
+                <p>管理您實驗室旗下研究生之勞僱型/學習型津貼發放進度。</p>
+            </div>
+            <div class="card" onclick="openModal('gradeModal')">
+                <h3>📝 學期成績登錄</h3>
+                <p>輸入並使用數位憑證鎖定學生期末成績，送交教務處註冊組。</p>
+            </div>
+            <div class="card" onclick="alert('啟動 LLM 掃描... 未發現學生作業有異常抄襲或 AI 幻覺。')">
+                <h3 style="color: #002D56;">🤖 AI 學術倫理掃描器</h3>
+                <p>批次掃描全班期末報告，偵測外部未授權 AI 生成內容。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="syllabusModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('syllabusModal')">&times;</span>
+            <h2 style="color: #8c1515;">上傳課程大綱 (Course Syllabus)</h2>
+            <form onsubmit="event.preventDefault(); showToast('✅ 大綱上傳成功！已開放學生選課查閱。'); closeModal('syllabusModal');">
+                <div class="form-group">
+                    <label>選擇授課科目</label>
+                    <select><option>量子演算法實作 (選修/3學分)</option><option>主動式資安防禦 (必修/3學分)</option></select>
+                </div>
+                <div class="form-group">
+                    <label>評分標準設定 (%)</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" placeholder="期中考 %" required>
+                        <input type="number" placeholder="期末考 %" required>
+                        <input type="number" placeholder="作業/報告 %" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>大綱檔案上傳 (PDF格式)</label>
+                    <input type="file" required style="border: none; padding: 0;">
+                </div>
+                <button type="submit" class="btn-submit">確認上傳並發布</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="travelModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('travelModal')">&times;</span>
+            <h2 style="color: #8c1515;">教職員出國差勤/補助申請</h2>
+            <form onsubmit="event.preventDefault(); showToast('✈️ 差勤申請已送交【校長室】與【人事室】簽核。'); closeModal('travelModal');">
+                <div class="form-group">
+                    <label>事由類別</label>
+                    <select><option>出席國際學術會議 (發表論文)</option><option>勝發集團海外廠區視察 (公務)</option><option>移地研究</option></select>
+                </div>
+                <div class="form-group">
+                    <label>前往國家/地區</label>
+                    <input type="text" placeholder="例如：美國 麻省理工學院 (MIT)" required>
+                </div>
+                <div class="form-group">
+                    <label>起訖日期</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="date" required><input type="date" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" style="background: #002D56;">送出簽核流程</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="gradeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('gradeModal')">&times;</span>
+            <h2 style="color: #8c1515;">成績登錄：AI 倫理與主動防禦</h2>
+            <table>
+                <tr><th>學號</th><th>姓名</th><th>期末成績</th></tr>
+                <tr><td>123456789</td><td>張同學</td><td><input type="text" value="A+" style="width: 50px; padding: 5px;"></td></tr>
+            </table>
+            <button class="btn-submit" style="margin-top:20px;" onclick="showToast('🔐 成績已使用副校長憑證鎖定並送交教務處。'); closeModal('gradeModal');">鎖定並送出</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -2,66 +2,93 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>首頁 | 極元科技大學 Jiyuan University of Technology</title>
     <style>
-        :root { --university-blue: #002D56; --academic-red: #A51C30; --bg-light: #F8F9FA; }
-        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; margin: 0; background: var(--bg-light); color: #333; }
-        .top-bar { background: #E9ECEF; padding: 5px 10%; text-align: right; font-size: 0.85rem; color: #555; }
-        .top-bar a { color: #555; text-decoration: none; margin-left: 15px; }
-        header { background: white; padding: 20px 10%; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--university-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 1.8rem; font-weight: 900; color: var(--university-blue); letter-spacing: 1px; }
-        nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 25px; }
-        nav a { text-decoration: none; color: #222; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
-        nav a:hover { color: var(--academic-red); }
-        .hero { background: linear-gradient(rgba(0,45,86,0.8), rgba(0,45,86,0.8)), url('https://via.placeholder.com/1920x600/002D56/ffffff?text=Jiyuan+University') center/cover; color: white; text-align: center; padding: 100px 20px; border-bottom: 5px solid var(--academic-red); }
-        .container { max-width: 1200px; margin: 50px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
-        h2 { color: var(--university-blue); border-left: 5px solid var(--academic-red); padding-left: 15px; }
-        .news-item { background: white; padding: 20px; margin-bottom: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .quick-links a { display: block; padding: 12px 15px; background: #eee; color: var(--university-blue); text-decoration: none; font-weight: bold; border-radius: 4px; margin-bottom: 8px; transition: 0.3s; border: 1px solid #ddd; }
-        .quick-links a:hover { background: var(--university-blue); color: white; }
-        .highlight-link { border-left: 5px solid var(--academic-red) !important; background: #fff5f5 !important; }
-        footer { background: #1A1A1A; color: #888; text-align: center; padding: 40px; font-size: 0.9rem; margin-top: 50px; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        :root { --u-blue: #00152b; --u-gold: #c5a059; --u-red: #8c1515; }
+        body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background: #f8f9fa; color: #333; overflow-x: hidden; }
+        
+        /* 頂部勝發機密跑馬燈 */
+        .ticker { background: var(--u-red); color: white; padding: 5px 0; font-size: 0.85rem; letter-spacing: 1px; overflow: hidden; white-space: nowrap; }
+        .ticker span { display: inline-block; animation: scroll 20s linear infinite; font-weight: bold; }
+        @keyframes scroll { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+
+        /* 導覽列 */
+        header { background: rgba(0, 21, 43, 0.95); backdrop-filter: blur(10px); padding: 15px 8%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid var(--u-gold); }
+        .logo { color: white; font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(197,160,89,0.5); }
+        .logo span { font-size: 0.9rem; color: var(--u-gold); display: block; letter-spacing: 1px; }
+        nav ul { list-style: none; display: flex; gap: 30px; margin: 0; padding: 0; }
+        nav a { color: white; text-decoration: none; font-weight: 700; transition: 0.3s; padding: 5px 10px; border-radius: 4px; }
+        nav a:hover { background: var(--u-gold); color: var(--u-blue); }
+
+        /* 劇院級大圖 */
+        .hero { height: 70vh; background: linear-gradient(rgba(0,21,43,0.8), rgba(0,21,43,0.9)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; border-bottom: 5px solid var(--u-gold); }
+        .hero h1 { font-size: 4rem; margin: 0; letter-spacing: 4px; text-shadow: 0 5px 15px rgba(0,0,0,0.8); animation: fadeInUp 1s ease; }
+        .hero p { font-size: 1.5rem; color: var(--u-gold); margin-top: 10px; font-weight: 700; animation: fadeInUp 1.5s ease; }
+        
+        /* 系統入口區 (美化為科技面板) */
+        .portal-section { background: #fff; padding: 60px 10%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: -50px; position: relative; z-index: 10; }
+        .portal-card { background: #fff; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; text-align: center; border-top: 4px solid var(--u-blue); transition: 0.4s; text-decoration: none; color: inherit; display: block; }
+        .portal-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(197,160,89,0.2); border-top-color: var(--u-gold); }
+        .portal-card h3 { color: var(--u-blue); font-size: 1.5rem; margin-top: 0; }
+
+        /* 單位連結區 */
+        .admin-section { padding: 60px 10%; background: #f0f2f5; text-align: center; }
+        .admin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 30px; }
+        .admin-link { background: white; padding: 20px; font-weight: bold; color: var(--u-blue); text-decoration: none; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid #ddd; }
+        .admin-link:hover { background: var(--u-blue); color: white; }
+        .highlight-vp { background: var(--u-blue); color: var(--u-gold); border: 1px solid var(--u-gold); }
+        .highlight-vp:hover { background: var(--u-gold); color: var(--u-blue); }
+
+        footer { background: var(--u-blue); color: #888; text-align: center; padding: 40px; font-size: 0.9rem; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-  <div class="top-bar">
-        <a href="student-system.html">學生校務系統</a> | 
-       <a href="teacher-system.html">教職員入口</a> 
-        <a href="#" style="color: var(--academic-red);">Shengfa Intranet</a>
-    </div>
-
+    <div class="ticker"><span>🔴 [勝發集團全球通報] 恭賀極元科大學術副校長 王閔弘博士 主導之「第七代星際通訊陣列」第二期 990 億預算已核撥完畢。 🔴 亞原子實驗室將於下月進行常溫量子電腦併網測試。</span></div>
+    
     <header>
-        <div class="logo">極元科技大學 <span>JUT</span></div>
+        <div class="logo">極元科技大學<br><span>JIYUAN UNIVERSITY OF TECHNOLOGY</span></div>
         <nav>
             <ul>
-                <li><a href="about.html">認識極元</a></li>
-                <li><a href="eecs-college.html">學術單位</a></li>
-                <li><a href="#">產學合作</a></li>
+                <li><a href="about.html">關於極元</a></li>
+                <li><a href="eecs-college.html">學術院系</a></li>
+                <li><a href="#">勝發全球產學</a></li>
             </ul>
         </nav>
     </header>
-        <h1>引領亞原子科技，定義未來世界</h1>
-        <p>勝發集團 (Shengfa Group) 全球核心學術基地</p>
+
+    <div class="hero">
+        <h1>定義未來的極限</h1>
+        <p>勝發集團 (Shengfa Group) 全球學術中樞</p>
     </div>
-    <div class="container">
-        <main>
-            <h2>焦點新聞 | News</h2>
-            <div class="news-item"><strong>2026.02.25</strong><br>王閔弘博士榮獲總統科學獎，帶領本校邁向全球資安頂峰。</div>
-            <div class="news-item"><strong>2026.02.10</strong><br>勝發集團挹注 4,500 億成立亞原子實驗室。</div>
-        </main>
-        <aside>
-            <h2>行政與學術單位</h2>
-            <div class="quick-links">
-                <a href="president.html">校長室 ➔</a>
-                <a href="vp-wang.html" class="highlight-link">學術副校長室 (王閔弘) ➔</a>
-                <a href="admin-vp.html">行政副校長室 ➔</a>
-                <a href="academic-affairs.html">教務處 ➔</a>
-                <a href="student-affairs.html">學生事務處 ➔</a>
-                <a href="eecs-college.html">電機資訊學院 ➔</a>
-            </div>
-        </aside>
+
+    <div class="portal-section">
+        <a href="student-system.html" class="portal-card">
+            <h3>👨‍🎓 學生校務系統</h3>
+            <p>成績查詢 / 選課 / 勝發獎學金 / 實習分發</p>
+        </a>
+        <a href="teacher-system.html" class="portal-card" style="border-top-color: var(--u-red);">
+            <h3 style="color: var(--u-red);">👨‍🏫 教職員入口網</h3>
+            <p>成績登錄 / 公文簽核 / 預算管理 / AI 掃描</p>
+        </a>
+        <a href="#" class="portal-card" style="border-top-color: var(--u-gold);">
+            <h3 style="color: var(--u-gold);">🌐 勝發內網 (Intranet)</h3>
+            <p>需具備 Level 4 以上集團憑證方可登入</p>
+        </a>
     </div>
-    <footer>&copy; 2026 極元科技大學 | 受勝發集團資訊保護協議規範</footer>
+
+    <div class="admin-section">
+        <h2 style="color: var(--u-blue);">行政與學術單位 (Administration)</h2>
+        <div class="admin-grid">
+            <a href="president.html" class="admin-link">校長室</a>
+            <a href="vp-wang.html" class="admin-link highlight-vp">學術副校長室 (王閔弘 博士) ★</a>
+            <a href="admin-vp.html" class="admin-link">行政副校長室</a>
+            <a href="academic-affairs.html" class="admin-link">教務處</a>
+            <a href="student-affairs.html" class="admin-link">學生事務處</a>
+            <a href="eecs-college.html" class="admin-link">電機資訊學院</a>
+        </div>
+    </div>
+    <footer>&copy; 2026 極元科技大學 | 受勝發集團最高資訊安全協議保護</footer>
 </body>
 </html>

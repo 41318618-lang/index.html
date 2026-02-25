@@ -1,12 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head><meta charset="UTF-8"><title>電機資訊學院 | 極元科大</title><style>body{font-family:sans-serif;padding:50px;line-height:1.6;}h1{color:#002D56;border-bottom:3px solid #A51C30;} .back{display:inline-block;margin-bottom:20px;text-decoration:none;color:#A51C30;font-weight:bold;}</style></head>
+<head>
+    <meta charset="UTF-8">
+    <title>電機資訊學院 | 極元科技大學</title>
+    <style>
+        :root { --university-blue: #002D56; --academic-red: #A51C30; }
+        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #F8F9FA; color: #222; }
+        header { background: var(--university-blue); color: white; padding: 40px 10%; border-bottom: 5px solid var(--academic-red); }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; gap: 40px; }
+        .sidebar { width: 300px; background: white; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 8px; align-self: start; }
+        .content { flex: 1; background: white; padding: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 8px; }
+        h1 { margin-top: 0; color: var(--university-blue); font-size: 2.2rem; }
+        h3 { color: var(--academic-red); border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .dean-profile { background: #fdfcf8; border: 1px solid #e9e5d3; padding: 20px; margin-bottom: 30px; }
+        .dept-list { list-style: none; padding: 0; }
+        .dept-list li { background: #f4f4f4; margin-bottom: 10px; padding: 15px; border-left: 4px solid var(--university-blue); font-weight: bold; }
+    </style>
+</head>
 <body>
-    <a href="index.html" class="back">⬅ 返回校本部首頁</a>
-    <h1>電機資訊學院 College of EECS</h1>
-    <p><strong>院長：趙鼎盛 博士 (IEEE Fellow)</strong></p>
-    <p>本校最具競爭力的核心學院，也是王閔弘副校長的發跡地。本院與勝發集團亞原子實驗室密切連線，擁有全球最強大的量子運算中心。</p>
-    <h3>轄下單位</h3>
-    <ul><li>資訊工程學系 (C#/Python 核心基地)</li><li>電機工程學系 (量子中樞研發)</li><li>資通安全研究所</li></ul>
+    <header>
+        <div style="font-size: 1.2rem; opacity: 0.8;"><a href="index.html" style="color:white; text-decoration:none;">⬅ 返回校本部</a></div>
+        <h1 style="color:white; margin: 10px 0 0 0; font-size: 2.5rem;">電機資訊學院 College of EECS</h1>
+        <p style="margin: 5px 0 0 0;">亞原子運算與量子網路的全球研發核心</p>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>轄下系所 (Departments)</h3>
+            <ul class="dept-list">
+                <li>資訊工程學系 </li>
+                <li>電機工程學系</li>
+                 <li>電子工程學系</li>
+                <li>光電與量子科學研究所</li>
+                <li>主動式資安防禦研究所</li>
+            </ul>
+        </div>
+        
+        <div class="content">
+            <h1>院長介紹 | Dean's Profile</h1>
+            <div class="dean-profile">
+                <h2 style="color: var(--university-blue); margin-top: 0;">趙鼎盛 博士 (Dr. Ding-Sheng Zhao)</h2>
+                <p><strong>頭銜：</strong>電機資訊學院 院長 | IEEE Fellow | 前矽谷頂尖量子運算首席工程師</p>
+                <p><strong>專長：</strong>超大型積體電路(VLSI)設計、量子閘道器架構、邊緣運算晶片開發。</p>
+            </div>
+
+            <h3>學院簡介 | About the College</h3>
+            <p>極元科技大學電機資訊學院（EECS）是全校最具戰略地位的核心學院。本院直接對接勝發集團的「全球量子中樞」與「亞原子製程超級廠區」。</p>
+            <p>本院每年獲得勝發集團超過 500 億台幣的專項設備補助，擁有全亞洲唯一一台「商用級常溫量子電腦」。我們的目標是為帝國培育出能夠編寫下一代世界運行法則的頂級工程師。</p>
+        </div>
+    </div>
 </body>
 </html>

@@ -2,7 +2,6 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>學生校務系統登入 | 極元科技大學</title>
     <style>
         body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #002D56 0%, #00152b 100%); color: white; }
@@ -15,7 +14,7 @@
         .login-btn { width: 100%; padding: 12px; border: none; border-radius: 4px; background: #B8860B; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .login-btn:hover { background: #daa520; }
         .back-link { display: block; margin-top: 20px; color: #aaa; text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { color: white; }
+        .error-msg { color: #ff4d4d; font-size: 0.9rem; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -24,14 +23,27 @@
         <div class="security-badge">勝發量子加密通道 (SSO) 已啟用</div>
         <div class="input-group">
             <label>學號 (Student ID)</label>
-            <input type="text" placeholder="請輸入學號">
+            <input type="text" id="stuId" placeholder="請輸入學號 (預設: 123456789)">
         </div>
         <div class="input-group">
             <label>通行密碼 (Password)</label>
-            <input type="password" placeholder="請輸入勝發通行金鑰">
+            <input type="password" id="stuPwd" placeholder="請輸入密碼 (預設: ABC)">
         </div>
-        <button class="login-btn" onclick="alert('系統維護中：正在升級亞原子防火牆，請稍後再試。')">安全登入 Login</button>
+        <div id="errorMsg" class="error-msg">❌ 帳號或密碼錯誤，請重新輸入。</div>
+        <button class="login-btn" onclick="checkLogin()">安全登入 Login</button>
         <a href="index.html" class="back-link">⬅ 返回校本部首頁</a>
     </div>
+
+    <script>
+        function checkLogin() {
+            var id = document.getElementById("stuId").value;
+            var pwd = document.getElementById("stuPwd").value;
+            if (id === "123456789" && pwd === "ABC") {
+                window.location.href = "student-dashboard.html"; // 登入成功跳轉
+            } else {
+                document.getElementById("errorMsg").style.display = "block"; // 顯示錯誤
+            }
+        }
+    </script>
 </body>
 </html>

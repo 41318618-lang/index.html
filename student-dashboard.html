@@ -2,118 +2,47 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>學生校務入口網 | 極元科技大學</title>
+    <title>學生校務入口網 Pro Max | 極元科技大學</title>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #f0f2f5; display: flex; }
-        .sidebar { width: 250px; background: #002D56; color: white; height: 100vh; position: fixed; padding-top: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
-        .sidebar h2 { text-align: center; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; }
-        .menu-item { display: block; padding: 15px 20px; color: #ddd; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .menu-item:hover { background: #A51C30; color: white; padding-left: 25px; }
+        body { font-family: "Noto Sans TC", sans-serif; margin: 0; background: #f0f4f8; display: flex; overflow-x: hidden; }
+        /* 側邊欄 */
+        .sidebar { width: 260px; background: #002D56; color: white; height: 100vh; position: fixed; box-shadow: 4px 0 15px rgba(0,0,0,0.1); z-index: 100; }
+        .sidebar h2 { text-align: center; font-size: 1.3rem; padding: 25px 0; margin: 0; border-bottom: 1px solid rgba(255,255,255,0.1); color: #c5a059; }
+        .menu-item { display: block; padding: 16px 25px; color: #d1d5db; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: bold; transition: 0.3s; }
+        .menu-item:hover { background: #A51C30; color: white; padding-left: 35px; border-left: 4px solid #c5a059; }
         
-        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .logout-btn { background: #A51C30; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; }
+        /* 主畫面 */
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); box-sizing: border-box; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #002D56; margin-bottom: 30px; }
+        .user-info { font-weight: 900; color: #1f2937; font-size: 1.2rem; }
+        .logout-btn { background: #e5e7eb; color: #374151; padding: 8px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        .logout-btn:hover { background: #A51C30; color: white; }
         
-        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #002D56; cursor: pointer; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top-color: #B8860B; }
-        .card h3 { margin: 0 0 10px 0; color: #002D56; }
+        /* 功能卡片網格 */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 5px solid #002D56; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,45,86,0.1); border-top-color: #c5a059; }
+        .card h3 { margin: 0 0 10px 0; color: #002D56; font-size: 1.3rem; }
+        .card p { margin: 0; color: #6b7280; font-size: 0.95rem; line-height: 1.5; }
+        .alert-badge { position: absolute; top: 15px; right: 15px; background: #dc2626; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        /* 擬真彈出視窗 (Modal) 樣式 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,45,86,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 600px; position: relative; max-height: 80vh; overflow-y: auto; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
-        .close-btn:hover { color: #A51C30; }
+        /* 擬真視窗 (Modal) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17,24,39,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 35px; border-radius: 12px; width: 90%; max-width: 750px; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; cursor: pointer; color: #9ca3af; transition: 0.3s; }
+        .close-btn:hover { color: #dc2626; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #002D56; color: white; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-submit { background: #B8860B; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 1rem; width: 100%; }
-        .btn-submit:hover { background: #9b7008; }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <h2>極元學生系統<br><span style="font-size: 0.8rem; color: #B8860B;">勝發集團連線端</span></h2>
-        <a href="#" class="menu-item">🏠 首頁大廳</a>
-        <a href="#" class="menu-item">📅 本學期課表</a>
-        <a href="#" class="menu-item">💰 勝發獎學金專區</a>
-    </div>
+        /* 表格與進度條 */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
+        th { background: #f3f4f6; color: #374151; }
+        .progress-box { margin-bottom: 20px; }
+        .progress-label { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #374151; }
+        .progress-bg { width: 100%; background: #e5e7eb; height: 12px; border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #002D56; }
+        .btn-action { width: 100%; padding: 12px; background: #c5a059; color: #00152b; border: none; border-radius: 6px; font-weight: bold; font-size: 1.05rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-action:hover { background: #b08d48; }
 
-    <div class="main-content">
-        <div class="header">
-            <div style="font-weight: bold; color: #002D56;">歡迎登入，學號：123456789 (電機資訊學院 學生)</div>
-            <a href="index.html" class="logout-btn">登出系統</a>
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="card" onclick="openModal('gradesModal')">
-                <h3>📝 歷年成績查詢</h3>
-                <p>查詢歷年與本學期期中/期末成績。</p>
-            </div>
-            <div class="card" onclick="openModal('leaveModal')">
-                <h3>🤒 線上請假系統</h3>
-                <p>病假、事假、公假與海外實習假申請。</p>
-            </div>
-            <div class="card" onclick="openModal('courseModal')">
-                <h3>🎓 量子選課系統</h3>
-                <p>進入第一階段/第二階段線上選課。</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="gradesModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('gradesModal')">&times;</span>
-            <h2 style="color: #002D56; margin-top: 0;">114學年度 上學期 成績單</h2>
-            <table>
-                <tr><th>課程名稱</th><th>學分</th><th>授課教師</th><th>成績</th></tr>
-                <tr><td>亞原子物理學</td><td>3</td><td>李維德 校長</td><td style="color: #A51C30; font-weight: bold;">A+</td></tr>
-                <tr><td>AI 倫理與主動防禦</td><td>3</td><td>王閔弘 副校長</td><td style="color: #A51C30; font-weight: bold;">A+</td></tr>
-                <tr><td>勝發集團企業架構</td><td>2</td><td>張家綺 副校長</td><td>A</td></tr>
-            </table>
-        </div>
-    </div>
-
-    <div id="leaveModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('leaveModal')">&times;</span>
-            <h2 style="color: #002D56; margin-top: 0;">學生假單申請</h2>
-            <div class="form-group">
-                <label>請假類別</label>
-                <select><option>勝發集團海外實習假 (公假)</option><option>病假 (需上傳醫療證明)</option></select>
-            </div>
-            <div class="form-group">
-                <label>請假日期</label>
-                <input type="date">
-            </div>
-            <div class="form-group">
-                <label>事由說明</label>
-                <input type="text" placeholder="例如：前往美國總部進行亞原子參數調校">
-            </div>
-            <button class="btn-submit" onclick="alert('假單已送出！目前正等待學務處簽核。'); closeModal('leaveModal');">送出假單</button>
-        </div>
-    </div>
-
-    <div id="courseModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('courseModal')">&times;</span>
-            <h2 style="color: #002D56; margin-top: 0;">114下學期 選課清單</h2>
-            <table>
-                <tr><th>課程名稱</th><th>餘額</th><th>操作</th></tr>
-                <tr><td>量子演算法實作</td><td>5/50</td><td><button style="background:green;color:white;border:none;padding:5px 10px;cursor:pointer;">加選</button></td></tr>
-                <tr><td>零知識證明與密碼學</td><td>額滿</td><td><button style="background:#ccc;border:none;padding:5px 10px;" disabled>無法加選</button></td></tr>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    </script>
-</body>
-</html>
+        /* 成功提示 */
+        #toast { display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; box-shadow: 0 10px 25px rgba(

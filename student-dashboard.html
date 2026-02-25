@@ -45,4 +45,143 @@
         .btn-action:hover { background: #b08d48; }
 
         /* 成功提示 */
-        #toast { display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; box-shadow: 0 10px 25px rgba(
+        #toast { display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 2000; }
+    </style>
+</head>
+<body>
+    <div id="toast">✅ 系統處理成功。</div>
+
+    <div class="sidebar">
+        <h2>極元學生校務系統<br><span style="font-size: 0.8rem; color: #c5a059;">勝發量子加密端 v4.0</span></h2>
+        <a href="#" class="menu-item">🏠 學生個人首頁</a>
+        <a href="#" class="menu-item" onclick="openModal('courseModal')">🎓 課表與選課系統</a>
+        <a href="#" class="menu-item" onclick="checkEval()">📝 成績與GPA查詢</a>
+        <a href="#" class="menu-item" onclick="openModal('gradModal')">📜 畢業門檻審查</a>
+        <a href="#" class="menu-item" onclick="openModal('leaveModal')">🤒 線上請假與差勤</a>
+        <a href="#" class="menu-item">💰 學雜費與勝發 Pay</a>
+        <a href="#" class="menu-item">🏢 星際宿舍申請</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="user-info">114學年度 | 張同學 (學號：123456789) - 電機資訊學院 大三</div>
+            <a href="index.html" class="logout-btn">安全登出</a>
+        </div>
+
+        <div class="grid">
+            <div class="card" onclick="openModal('courseModal')">
+                <h3>🎓 第一階段選課 (初選)</h3>
+                <p>目前開放 114下學期 課程志願序填寫。請於週五前完成量子分發登記。</p>
+            </div>
+            <div class="card" onclick="openModal('evalModal')" style="border-top-color: #dc2626;">
+                <div class="alert-badge">未完成</div>
+                <h3 style="color: #dc2626;">⭐ 期末教學評鑑</h3>
+                <p>⚠️ 您尚有 1 門課程未填寫評鑑。<strong>未完成者將無法查詢本學期成績。</strong></p>
+            </div>
+            <div class="card" onclick="checkEval()">
+                <h3>📝 歷年成績與名次查詢</h3>
+                <p>查詢各學期 GPA、班級排名與系所排名 (需先完成教學評鑑)。</p>
+            </div>
+            <div class="card" onclick="openModal('gradModal')">
+                <h3>📜 畢業學分與門檻審查</h3>
+                <p>追蹤您的必修、選修學分進度，以及勝發外語/程式能力檢定狀態。</p>
+            </div>
+            <div class="card" onclick="openModal('leaveModal')">
+                <h3>🤒 線上假單申請</h3>
+                <p>申請病假、事假，或上傳勝發集團實習公文辦理公假。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="evalModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('evalModal')">&times;</span>
+            <h2 style="color: #A51C30;">期末教學評鑑 (匿名填寫)</h2>
+            <p><strong>待評鑑課程：</strong>AI 倫理與主動防禦 (授課教師：王閔弘 副校長)</p>
+            <form onsubmit="event.preventDefault(); submitEval();">
+                <p>1. 老師的教學內容是否涵蓋亞原子領域最新趨勢？</p>
+                <input type="radio" name="q1" required> 極佳 <input type="radio" name="q1"> 佳 <input type="radio" name="q1"> 尚可
+                <p>2. 老師對同學的提問是否有耐心且具體解答？</p>
+                <input type="radio" name="q2" required> 極佳 <input type="radio" name="q2"> 佳 <input type="radio" name="q2"> 尚可
+                <p>3. 綜合質性意見 (選填)：</p>
+                <textarea style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" rows="3" placeholder="王副校長上課很有料，但期中考用量子電腦防作弊太狠了..."></textarea>
+                <button type="submit" class="btn-action" style="background: #A51C30; color: white;">送出評鑑 (解鎖成績查詢)</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="gradeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('gradeModal')">&times;</span>
+            <h2 style="color: #002D56;">歷年成績查詢與 GPA</h2>
+            <div style="display: flex; gap: 20px; margin-bottom: 20px; background: #f3f4f6; padding: 15px; border-radius: 8px;">
+                <div><strong>累積 GPA：</strong> 4.12 / 4.30</div>
+                <div><strong>班級排名：</strong> 2 / 120 (前 1.6%)</div>
+                <div><strong>狀態：</strong> 符合勝發直升資格</div>
+            </div>
+            <table>
+                <tr><th>課程名稱</th><th>學分</th><th>等第</th><th>積分</th></tr>
+                <tr><td>亞原子物理學</td><td>3</td><td style="color:#A51C30; font-weight:bold;">A+</td><td>4.3</td></tr>
+                <tr><td>AI 倫理與主動防禦</td><td>3</td><td style="color:#A51C30; font-weight:bold;">A+</td><td>4.3</td></tr>
+                <tr><td>勝發企業管理概論</td><td>2</td><td>A</td><td>4.0</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="gradModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('gradModal')">&times;</span>
+            <h2 style="color: #002D56;">🎓 畢業學分與門檻審查系統</h2>
+            
+            <div class="progress-box">
+                <div class="progress-label"><span>系定必修 (已修 60 / 應修 72)</span><span>83%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 83%;"></div></div>
+            </div>
+            <div class="progress-box">
+                <div class="progress-label"><span>專業選修 (已修 35 / 應修 40)</span><span>87%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width: 87%; background: #c5a059;"></div></div>
+            </div>
+            
+            <h3 style="margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 10px;">校級畢業門檻 (Graduation Requirements)</h3>
+            <table>
+                <tr><th>檢定項目</th><th>狀態</th><th>備註</th></tr>
+                <tr><td>勝發高階英語檢定 (TOEIC 900+)</td><td style="color: green; font-weight: bold;">✅ 已通過</td><td>950分 (2025/11)</td></tr>
+                <tr><td>程式能力檢定 (C#/Python 高級)</td><td style="color: green; font-weight: bold;">✅ 已通過</td><td>王閔弘副校長認證</td></tr>
+                <tr><td>服務學習 (亞原子偏鄉科普 40hr)</td><td style="color: #dc2626; font-weight: bold;">❌ 未完成</td><td>尚缺 12 小時</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let isEvalDone = false; // 紀錄是否填完教學評鑑
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        function submitEval() {
+            isEvalDone = true;
+            closeModal('evalModal');
+            // 隱藏警告標籤
+            document.querySelector('.alert-badge').style.display = 'none';
+            document.querySelector('#evalModal').previousElementSibling; // 只是示範，實際可用更精確的 DOM 選擇
+            showToast('✅ 評鑑提交成功！您現在可以查詢本學期成績了。');
+        }
+
+        function checkEval() {
+            if (!isEvalDone) {
+                alert('⚠️ 系統警告：您尚有未填寫的「教學評鑑」。依據教務處規定，請先填寫完畢方可查詢成績與名次！');
+                openModal('evalModal');
+            } else {
+                openModal('gradeModal');
+            }
+        }
+    </script>
+</body>
+</html>

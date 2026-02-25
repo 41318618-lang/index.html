@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校長室 | 極元科技大學 Jiyuan University of Technology</title>
+    <style>
+        /* 沿用極元科大的官方配色與排版 */
+        :root { --university-blue: #002D56; --academic-red: #A51C30; --gold-accent: #B8860B; --light-bg: #F5F7F9; }
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; margin: 0; background: var(--light-bg); color: #222; }
+        header { background: var(--university-blue); color: white; padding: 30px 10%; border-bottom: 5px solid var(--academic-red); }
+        .school-name { font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; }
+        .office-name { font-size: 1.1rem; opacity: 0.9; margin-top: 5px; }
+        .main-wrapper { display: flex; max-width: 1300px; margin: 40px auto; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+        nav { width: 280px; background: #E9ECEF; padding: 40px 20px; border-right: 1px solid #DEE2E6; }
+        nav ul { list-style: none; padding: 0; position: sticky; top: 40px; }
+        nav li { margin-bottom: 12px; }
+        nav a { text-decoration: none; color: #333; font-weight: 600; display: block; padding: 10px 15px; border-radius: 6px; transition: 0.3s; }
+        nav a:hover { background: var(--university-blue); color: white; }
+        main { flex: 1; padding: 50px 60px; }
+        .hero-section { border-bottom: 3px solid var(--university-blue); padding-bottom: 20px; margin-bottom: 40px; }
+        .hero-section h1 { margin: 0; color: var(--university-blue); font-size: 2.6rem; }
+        .sub-title { color: var(--academic-red); font-size: 1.3rem; font-weight: bold; margin-top: 10px; }
+        h2 { font-size: 1.6rem; color: var(--university-blue); border-left: 6px solid var(--academic-red); padding-left: 18px; margin-top: 50px; margin-bottom: 25px; }
+        .card { background: #FAFAFA; border: 1px solid #EEE; padding: 25px; border-radius: 4px; line-height: 1.8; margin-bottom: 20px; }
+        footer { text-align: center; padding: 40px; background: #222; color: #999; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="school-name">極元科技大學 Jiyuan University of Technology</div>
+    <div class="office-name">校長室 Office of the President</div>
+</header>
+
+<div class="main-wrapper">
+    <nav>
+        <ul>
+            <li><a href="index.html">⬅ 返回校本部首頁</a></li>
+            <li><a href="#profile">校長簡介</a></li>
+            <li><a href="#vision">治校理念</a></li>
+            <li><a href="#experience">重要經歷</a></li>
+            <li><a href="#contact">聯絡校長室</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="profile" class="hero-section">
+            <h1>李維德 博士 <small style="color: #666; font-size: 1.2rem;">(Dr. Wei-De Li)</small></h1>
+            <div class="sub-title">極元科技大學 第四任校長 | 諾貝爾物理學獎得主 | 勝發集團最高戰略顧問</div>
+            <p>「以亞原子科學為基石，結合人文與科技的極致，帶領極元科大成為全人類文明的燈塔。」</p>
+        </section>
+
+        <section id="vision">
+            <h2>治校理念 | Vision</h2>
+            <div class="card">
+                李校長致力於將極元科大打造成為「超國家級」的研究中樞。透過與全球第一大科技帝國「勝發集團」的深度戰略結盟，導入破兆元研究資金，讓學術不再受限於預算，讓每一位天才學者（如王閔弘副校長）都能在這裡將理論化為改變世界的真實科技。
+            </div>
+        </section>
+
+        <section id="experience">
+            <h2>重要經歷 | Experience</h2>
+            <div class="card">
+                <ul style="list-style: none; padding: 0;">
+                    <li><strong>2020</strong> 榮獲 諾貝爾物理學獎 (因發現高能粒子自旋穩定態)</li>
+                    <li><strong>2015-2022</strong> 美國普林斯頓大學 高級研究院 院長</li>
+                    <li><strong>2010-2015</strong> 歐洲核子研究組織 (CERN) 總幹事</li>
+                    <li><strong>現任</strong> 勝發集團 (Shengfa Group) 行星級大氣工程計畫 最高指導顧問</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+</div>
+
+<footer>&copy; 2026 極元科技大學 校長室 | 受勝發集團與國家安全局資訊保護協議規範。</footer>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>教職員入口網 | 極元科技大學</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #eef2f5; display: flex; }
+        .sidebar { width: 250px; background: #A51C30; color: white; height: 100vh; position: fixed; padding-top: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar h2 { text-align: center; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; }
+        .menu-item { display: block; padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .menu-item:hover { background: #002D56; padding-left: 25px; }
+        
+        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #A51C30; }
+        .user-info { font-weight: bold; color: #333; font-size: 1.1rem; }
+        .logout-btn { background: #002D56; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #A51C30; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 10px 0; color: #A51C30; }
+        .card p { margin: 0; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>教職員管理系統</h2>
+        <a href="#" class="menu-item">📊 教務主控台</a>
+        <a href="#" class="menu-item">👨‍🏫 我的授課清單</a>
+        <a href="#" class="menu-item">📝 成績登錄系統</a>
+        <a href="#" class="menu-item">✅ 假單簽核作業</a>
+        <a href="#" class="menu-item">💰 國科會計畫管理</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="user-info">王閔弘 副校長 (專任特聘講座教授) ，您好。</div>
+            <a href="index.html" class="logout-btn">安全登出</a>
+        </div>
+
+        <h2 style="color: #333;">教務與研究系統</h2>
+        <div class="dashboard-grid">
+            <div class="card" onclick="alert('開啟成績輸入介面：請確保在期限前完成 114 學年度上學期成績上傳。')">
+                <h3>📝 學生期末成績登錄</h3>
+                <p>上傳並鎖定您本學期所教授課程的學生成績。</p>
+            </div>
+            <div class="card" onclick="alert('目前有 3 筆學生請假單待審核。')">
+                <h3>✅ 假單與公文簽核</h3>
+                <p>審核導生請假單及校內行政公文電子簽核。</p>
+            </div>
+            <div class="card" onclick="alert('目前執行中計畫：勝發極端氣候量子補償 (預算：4500億)。')">
+                <h3>🔬 研究經費與計畫管理</h3>
+                <p>查詢勝發集團與國科會撥款之研究專案進度與預算消耗。</p>
+            </div>
+            <div class="card">
+                <h3>📅 教師差勤系統</h3>
+                <p>填寫出國開會、休假與校外兼課申請。</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>資訊工程學系 | 極元科技大學 (Shengfa Core)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root { --sf-blue: #003060; --sf-gold: #c5a059; --sf-red: #8c1515; --bg-dark: #f8f9fa; }
+        body { margin: 0; font-family: 'Noto Sans TC', sans-serif; background: #fff; color: #333; overflow-x: hidden; }
+
+        /* 頂部橫幅 (致敬正修科大設計並升級) */
+        .top-banner { background: var(--sf-blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--sf-gold); }
+        .logo { display: flex; align-items: center; gap: 15px; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; }
+        .logo-icon { background: var(--sf-gold); color: #000; padding: 5px 10px; border-radius: 4px; font-family: 'Share Tech Mono'; }
+
+        /* 高階互動下拉選單 (Navbar) */
+        nav { background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .nav-list { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; }
+        .nav-item { position: relative; }
+        .nav-link { display: block; padding: 20px 30px; color: var(--sf-blue); text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
+        .nav-link:hover { background: var(--sf-blue); color: white; }
+
+        /* 下拉選單核心邏輯 */
+        .dropdown-menu { position: absolute; top: 100%; left: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 3px solid var(--sf-gold); opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; list-style: none; padding: 0; margin: 0; }
+        .nav-item:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { padding: 15px 25px; border-bottom: 1px solid #eee; cursor: pointer; color: #555; font-weight: bold; transition: 0.2s; }
+        .dropdown-item:hover { background: var(--sf-gold); color: #000; padding-left: 30px; }
+
+        /* 動態內容展示區 */
+        .content-area { padding: 60px 10%; min-height: 60vh; background: #f4f6f9; }
+        .section-view { display: none; animation: slideUp 0.5s ease forwards; }
+        .section-view.active { display: block; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 人物卡片設計 (系主任/師資) */
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 30px; }
+        .profile-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-top: 4px solid var(--sf-blue); transition: 0.3s; }
+        .profile-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,48,96,0.15); border-top-color: var(--sf-gold); }
+        .profile-header { background: #00152b; color: #fff; padding: 20px; text-align: center; }
+        .profile-body { padding: 25px; line-height: 1.8; }
+        .tag { background: rgba(197,160,89,0.2); color: #997b3d; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid var(--sf-gold); }
+
+        /* 歡迎首頁設計 */
+        .hero { text-align: center; padding: 80px 0; }
+        .hero h1 { font-size: 3rem; color: var(--sf-blue); margin-bottom: 20px; }
+        .hero p { font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto; line-height: 1.8; }
+
+        footer { background: var(--sf-blue); color: #aaa; text-align: center; padding: 30px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="top-banner">
+        <div class="logo">
+            <div class="logo-icon">CSIE</div>
+            極元科技大學 資訊工程學系
+        </div>
+        <div style="font-family: 'Share Tech Mono';">SHENGFA GROUP ACADEMIC NODE</div>
+    </div>
+
+    <nav>
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="switchView('home')">本系介紹</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">系所成員 ▼</a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item" onclick="switchView('chair')">👨‍💼 系主任</li>
+                    <li class="dropdown-item" onclick="switchView('faculty')">🎓 師資介紹</li>
+                    <li class="dropdown-item" onclick="switchView('staff')">🏢 系辦成員</li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="switchView('curriculum')">課程規劃</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="alert('連結至勞動部技能檢定與勝發集團內部認證中心')">技能認證</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" style="color: var(--sf-red);">招生訊息 (Admissions)</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="content-area">
+        
+        <div id="view-home" class="section-view active">
+            <div class="hero">
+                <h1>定義未來的核心力量</h1>
+                <p>本系聚焦於 <strong>AIoT技術應用、XR數位內容開發</strong>，並具備 <strong>生成式AI應用技術</strong> 與 <strong>資安攻防技術 (ISMS)</strong>。我們是驅動台灣半導體產業 (IC Design / EDA) 的最強後盾，為勝發集團輸送最高階的數位架構工程師。</p>
+            </div>
+        </div>
+
+        <div id="view-chair" class="section-view">
+            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">系主任 (Department Chair)</h2>
+            <div class="profile-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <h2 style="margin: 0; color: var(--sf-gold);">林子淵 博士 (Dr. Tzu-Yuan Lin)</h2>
+                        <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8;">資訊工程學系 系主任 / 前勝發集團 量子密碼學首席研究員</div>
+                    </div>
+                    <div class="profile-body">
+                        <p><strong>學歷：</strong>美國麻省理工學院 (MIT) 電機資訊博士</p>
+                        <p><strong>專長領域：</strong><span class="tag">後量子密碼學</span> <span class="tag">零知識證明 (ZKP)</span> <span class="tag">大數據探勘</span></p>
+                        <p><strong>主任的話：</strong>「在極元科大資工系，我們不只教你寫程式，我們教你如何編寫未來世界的運行法則。在勝發集團的全力奧援下，本系擁有全亞洲唯一的常溫量子電腦實驗室。歡迎各位天才加入我們。」</p>
+                        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
+                        <p><strong>聯絡方式：</strong>tylin@shengfa.global | 分機：3701</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-faculty" class="section-view">
+            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">師資介紹 (Faculty Members)</h2>
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <div class="profile-header" style="background: var(--sf-red);">
+                        <h3 style="margin: 0;">王閔弘 博士</h3>
+                        <div style="font-size: 0.8rem; opacity: 0.9;">學術副校長 / 特聘講座教授</div>
+                    </div>
+                    <div class="profile-body">
+                        <p><strong>專長：</strong><span class="tag">主動式資安防禦</span> <span class="tag">AI幻覺修正系統</span></p>
+                        <p style="color: #666; font-size: 0.9rem;">主導國家數位盾牌計畫與勝發集團 4500 億星際陣列專案。</p>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <h3 style="margin: 0; color: var(--sf-gold);">陳柏宇 博士</h3>
+                        <div style="font-size: 0.8rem; opacity: 0.9;">專任教授 / 聯發科前高階主管</div>
+                    </div>
+                    <div class="profile-body">
+                        <p><strong>專長：</strong><span class="tag">IC Design (數位/類比)</span> <span class="tag">EDA 演算法</span></p>
+                        <p style="color: #666; font-size: 0.9rem;">負責半導體製程與晶片架構課程，銜接勝發硬體供應鏈。</p>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <h3 style="margin: 0; color: var(--sf-gold);">李欣儀 博士</h3>
+                        <div style="font-size: 0.8rem; opacity: 0.9;">專任副教授</div>
+                    </div>
+                    <div class="profile-body">
+                        <p><strong>專長：</strong><span class="tag">XR 數位雙生</span> <span class="tag">AIoT 邊緣運算</span></p>
+                        <p style="color: #666; font-size: 0.9rem;">建構與勝發 742 座廠區同步之虛擬宇宙平台。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-staff" class="section-view">
+            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">系辦成員 (Department Staff)</h2>
+            <div class="profile-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="profile-card">
+                    <div class="profile-body">
+                        <h3 style="color: var(--sf-blue); border-bottom: 2px solid #eee; padding-bottom: 10px;">張秘書 (資深行政專員)</h3>
+                        <p><strong>業務職掌：</strong></p>
+                        <ul>
+                            <li>日間部學士班/碩士班 課程規劃與選課異常處理</li>
+                            <li>勝發星際獎學金 (15萬/月) 初審收件</li>
+                            <li>勞動部與經濟部產業人才能力鑑定試務</li>
+                        </ul>
+                        <p><strong>分機：</strong>3702 | <strong>信箱：</strong>csie_admin@gcloud.csu.edu.tw</p>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <div class="profile-body">
+                        <h3 style="color: var(--sf-blue); border-bottom: 2px solid #eee; padding-bottom: 10px;">林技士 (系統與設備管理員)</h3>
+                        <p><strong>業務職掌：</strong></p>
+                        <ul>
+                            <li>AIoT 實驗室與 XR 數位雙生設備維護</li>
+                            <li>常溫量子電腦機房 門禁權限與溫控管理</li>
+                            <li>系網伺服器與資訊安全管理系統 (ISMS) 維運</li>
+                        </ul>
+                        <p><strong>分機：</strong>3703 | <strong>信箱：</strong>csie_it@gcloud.csu.edu.tw</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-curriculum" class="section-view">
+            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">課程規劃 (Curriculum)</h2>
+            <div class="profile-card" style="padding: 30px;">
+                <h3 style="color: var(--sf-red);">驅動台灣產業的核心力量：半導體 ➔ IC</h3>
+                <p>本系課程緊密結合產業脈動，涵蓋：</p>
+                <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; font-family: 'Share Tech Mono'; margin: 20px 0;">
+                    EDA ➔ IP ➔ IC Design ➔ IC Manufacturing ➔ IC Packaging & Testing
+                </div>
+                <p><strong>🎓 專業培育方向：</strong><br>數位 IC 設計工程師、類比 IC 設計工程師、佈局工程師、軟體工程師、製程工程師、設備工程師、測試工程師、品管工程師。</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        辦公室：綜合行政大樓(03) 6樓 資訊工程系 | 地址：極元市 勝發科研大道 840 號<br>
+        TEL：07-7358800 ext.3702、3703 | 專屬信箱：csie@shengfa.global<br>
+        &copy; 2026 極元科技大學 資訊工程學系 All Rights Reserved.
+    </footer>
+
+    <script>
+        // SPA 單頁切換邏輯
+        function switchView(viewId) {
+            // 隱藏所有區塊
+            const views = document.querySelectorAll('.section-view');
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // 顯示目標區塊
+            const targetView = document.getElementById('view-' + viewId);
+            if(targetView) {
+                targetView.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

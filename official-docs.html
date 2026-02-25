@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>校務公文簽核系統 | 極元科技大學</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #eef2f5; display: flex; }
+        .sidebar { width: 250px; background: #002D56; color: white; height: 100vh; position: fixed; padding-top: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.2); }
+        .sidebar h2 { text-align: center; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; }
+        .menu-item { display: block; padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .menu-item:hover { background: #A51C30; padding-left: 25px; border-left: 5px solid #B8860B; }
+        
+        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; border-left: 5px solid #B8860B; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        /* 狀態統計卡片 */
+        .stats-container { display: flex; gap: 20px; margin-bottom: 30px; }
+        .stat-card { flex: 1; background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 4px solid #002D56; }
+        .stat-card h3 { margin: 0; color: #666; font-size: 1rem; }
+        .stat-card .num { font-size: 2.5rem; font-weight: bold; color: #A51C30; margin: 10px 0 0 0; }
+
+        /* 公文列表表格 */
+        .doc-table-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #eee; padding: 15px 10px; text-align: left; }
+        th { background: #f8f9fa; color: #333; font-weight: bold; }
+        tr:hover { background: #fdfdfd; cursor: pointer; }
+        .tag { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; color: white; }
+        .tag-urgent { background: #dc3545; }
+        .tag-normal { background: #002D56; }
+        .tag-secret { background: #212529; color: #B8860B; border: 1px solid #B8860B; }
+        
+        /* 互動式公文簽核視窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,21,43,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 40px; border-radius: 8px; width: 90%; max-width: 700px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        .close-btn:hover { color: #A51C30; }
+        
+        .doc-header { border-bottom: 2px solid #002D56; padding-bottom: 15px; margin-bottom: 20px; }
+        .doc-header h2 { margin: 0 0 10px 0; color: #002D56; }
+        .doc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; color: #555; background: #f9f9f9; padding: 15px; border-radius: 4px; }
+        .doc-body { line-height: 1.8; color: #333; margin-bottom: 30px; font-size: 1.05rem; }
+        
+        /* 簽核動作區 */
+        .action-area { background: #fdf8e4; padding: 20px; border-radius: 4px; border-left: 4px solid #B8860B; }
+        .pin-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; box-sizing: border-box; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 4px; font-size: 1.1rem; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+        .btn-approve { background: #28a745; }
+        .btn-approve:hover { background: #218838; }
+        .btn-reject { background: #dc3545; }
+        .btn-reject:hover { background: #c82333; }
+        
+        /* 簽核成功動畫提示 */
+        #toast { display: none; position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 25px; border-radius: 4px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 2000; animation: fadeInOut 3s forwards; }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(-20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
+    </style>
+</head>
+<body>
+    <div id="toast">✅ 公文已使用「王閔弘 學術副校長」數位憑證簽署並同步至區塊鏈。</div>
+
+    <div class="sidebar">
+        <h2>極元公文電子交換網<br><span style="font-size: 0.8rem; color: #B8860B;">勝發集團 Level 5 授權</span></h2>
+        <a href="teacher-dashboard.html" class="menu-item">⬅ 返回教職員入口</a>
+        <a href="#" class="menu-item" style="background: #A51C30; border-left: 5px solid #B8860B;">📝 待簽核公文 (<span id="menuPendingCount">3</span>)</a>
+        <a href="#" class="menu-item">📁 已決行歸檔</a>
+        <a href="#" class="menu-item">🔍 集團機密調閱</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div style="font-weight: bold; color: #333;">王閔弘 副校長，您有 <span style="color:#A51C30;">待處理之急件</span>。</div>
+            <div style="font-size: 0.9rem; color: #666;">系統時間：2026-02-25 10:00:00</div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card"><h3>待簽核 (Pending)</h3><div class="num" id="pendingCount">3</div></div>
+            <div class="stat-card"><h3>今日已決行 (Approved)</h3><div class="num" id="approvedCount" style="color:#28a745;">12</div></div>
+            <div class="stat-card"><h3>已退件 (Rejected)</h3><div class="num" id="rejectedCount" style="color:#666;">0</div></div>
+        </div>
+
+        <div class="doc-table-container">
+            <h3 style="margin-top:0; color:#002D56;">待辦清單</h3>
+            <table id="docTable">
+                <tr><th>公文速別</th><th>發文單位</th><th>主旨</th><th>收到時間</th><th>操作</th></tr>
+                <tr id="row-1" onclick="openDoc(1, '極急件', '行政副校長室 (張家綺)', '撥款申請：第七代星際通訊陣列第二期 990 億資金核撥', '2026-02-25 08:30', '依據勝發集團董事會決議，懇請 學術副校長 核准第二期研發資金 NT$ 99,000,000,000 元整，以利亞原子實驗室採購量子處理器模組。')">
+                    <td><span class="tag tag-urgent">極急件</span></td><td>行政副校長室</td><td>撥款申請：第七代星際通訊陣列第二期 990 億資金核撥</td><td>08:30</td>
+                    <td><button style="padding:5px 10px; cursor:pointer;">開啟簽核</button></td>
+                </tr>
+                <tr id="row-2" onclick="openDoc(2, '機密', '電機資訊學院 (趙鼎盛)', '人事聘任：延攬前麻省理工 AI 實驗室主任擔任客座教授', '2026-02-24 16:45', '為強化本院研發能量，擬動用勝發星際基金，以年薪 500 萬美金延攬前 MIT 主任。請 副校長 裁示。')">
+                    <td><span class="tag tag-secret">最高機密</span></td><td>電資學院</td><td>人事聘任：延攬前麻省理工 AI 實驗室主任</td><td>昨 16:45</td>
+                    <td><button style="padding:5px 10px; cursor:pointer;">開啟簽核</button></td>
+                </tr>
+                <tr id="row-3" onclick="openDoc(3, '普通', '國防部通資次長室', '合約簽署：國家數位盾牌密碼授權協議', '2026-02-24 10:15', '有關本校協助建置「國家數位防禦盾牌」一案，請 學術副校長 進行最終數位簽署，授權零知識證明原始碼予軍方使用。')">
+                    <td><span class="tag tag-normal">普通件</span></td><td>國防部</td><td>合約簽署：國家數位盾牌密碼授權協議</td><td>昨 10:15</td>
+                    <td><button style="padding:5px 10px; cursor:pointer;">開啟簽核</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="docModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="doc-header">
+                <h2 id="modalSubject">公文主旨</h2>
+            </div>
+            <div class="doc-meta">
+                <div><strong>發文單位：</strong> <span id="modalSender"></span></div>
+                <div><strong>公文速別：</strong> <span id="modalType"></span></div>
+                <div><strong>收文時間：</strong> <span id="modalTime"></span></div>
+                <div><strong>附件：</strong> <span style="color:#0056b3; cursor:pointer; text-decoration:underline;">📄 檢視加密附件 (PDF)</span></div>
+            </div>
+            <div class="doc-body" id="modalBody">
+                公文詳細內容...
+            </div>
+            
+            <div class="action-area">
+                <label style="font-weight:bold; color:#A51C30;">🔐 勝發高階數位憑證簽署 (Digital Signature)</label>
+                <input type="password" id="digitalPin" class="pin-input" placeholder="請輸入您的授權密碼 (預設: 123)">
+                <div class="btn-group">
+                    <button class="btn btn-approve" onclick="processDoc('approve')">同意核准 (Approve)</button>
+                    <button class="btn btn-reject" onclick="processDoc('reject')">退回重擬 (Reject)</button>
+                </div>
+                <div id="pinError" style="color:#dc3545; margin-top:10px; display:none; font-weight:bold;">❌ 數位憑證密碼錯誤！</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDocId = null;
+
+        // 打開公文
+        function openDoc(id, type, sender, subject, time, body) {
+            currentDocId = id;
+            document.getElementById('modalType').innerText = type;
+            document.getElementById('modalSender').innerText = sender;
+            document.getElementById('modalSubject').innerText = subject;
+            document.getElementById('modalTime').innerText = time;
+            document.getElementById('modalBody').innerText = body;
+            document.getElementById('digitalPin').value = ''; // 清空密碼欄
+            document.getElementById('pinError').style.display = 'none';
+            document.getElementById('docModal').style.display = 'flex';
+        }
+
+        // 關閉公文
+        function closeModal() {
+            document.getElementById('docModal').style.display = 'none';
+        }
+
+        // 處理簽核邏輯 (核心互動)
+        function processDoc(action) {
+            const pin = document.getElementById('digitalPin').value;
+            if (pin !== '123') {
+                document.getElementById('pinError').style.display = 'block';
+                return;
+            }
+
+            // 密碼正確，隱藏視窗
+            closeModal();
+
+            // 移除已經簽核的公文列
+            const row = document.getElementById('row-' + currentDocId);
+            if (row) {
+                row.parentNode.removeChild(row);
+            }
+
+            // 更新統計數字
+            let pending = parseInt(document.getElementById('pendingCount').innerText);
+            document.getElementById('pendingCount').innerText = pending - 1;
+            document.getElementById('menuPendingCount').innerText = pending - 1;
+
+            if (action === 'approve') {
+                let approved = parseInt(document.getElementById('approvedCount').innerText);
+                document.getElementById('approvedCount').innerText = approved + 1;
+                showToast("✅ 公文已核准！數位簽章已上鏈。");
+            } else {
+                let rejected = parseInt(document.getElementById('rejectedCount').innerText);
+                document.getElementById('rejectedCount').innerText = rejected + 1;
+                showToast("⚠️ 公文已退回發文單位！", "#dc3545");
+            }
+        }
+
+        // 顯示成功/退回提示訊息
+        function showToast(message, bgColor = "#28a745") {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.background = bgColor;
+            toast.style.display = 'block';
+            
+            // 重置動畫
+            toast.style.animation = 'none';
+            toast.offsetHeight; /* 觸發重繪 */
+            toast.style.animation = null;
+
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

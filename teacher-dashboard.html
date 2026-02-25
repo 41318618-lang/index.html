@@ -2,169 +2,43 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>教職員入口網 | 極元科技大學</title>
+    <title>教職員入口網 Pro Max | 極元科技大學</title>
     <style>
         body { font-family: "Noto Sans TC", sans-serif; margin: 0; background: #eef2f5; display: flex; overflow-x: hidden; }
-        .sidebar { width: 260px; background: #00152b; color: white; height: 100vh; position: fixed; box-shadow: 2px 0 15px rgba(0,0,0,0.2); }
-        .sidebar h2 { text-align: center; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 30px 0; margin: 0; color: #c5a059; letter-spacing: 1px; }
-        .menu-item { display: block; padding: 18px 25px; color: #ccc; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; font-weight: bold; }
+        /* 側邊欄 */
+        .sidebar { width: 260px; background: #1a1a1a; color: white; height: 100vh; position: fixed; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+        .sidebar h2 { text-align: center; font-size: 1.2rem; padding: 25px 0; margin: 0; border-bottom: 1px solid #333; color: #c5a059; }
+        .menu-item { display: block; padding: 15px 25px; color: #bbb; text-decoration: none; border-bottom: 1px solid #222; font-weight: bold; transition: 0.3s; }
         .menu-item:hover { background: #8c1515; color: white; padding-left: 35px; border-left: 4px solid #c5a059; }
         
+        /* 主畫面 */
         .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); box-sizing: border-box; }
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px 40px; border-radius: 8px; border-left: 6px solid #8c1515; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .logout-btn { background: #00152b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #8c1515; margin-bottom: 30px; }
+        .user-info { font-weight: 900; color: #222; font-size: 1.2rem; }
+        .logout-btn { background: #333; color: white; padding: 8px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        .logout-btn:hover { background: #8c1515; }
         
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-top: 5px solid #00152b; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); border-top-color: #c5a059; }
-        .card h3 { margin: 0 0 10px 0; color: #00152b; font-size: 1.4rem; }
+        /* 網格區 */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 5px solid #333; cursor: pointer; transition: 0.3s; position: relative; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); border-top-color: #8c1515; }
+        .card h3 { margin: 0 0 10px 0; color: #8c1515; font-size: 1.3rem; }
         .card p { margin: 0; color: #666; font-size: 0.95rem; line-height: 1.5; }
-        
-        /* 專屬特效標籤 */
-        .badge { position: absolute; top: 15px; right: -30px; background: #8c1515; color: white; padding: 5px 30px; font-size: 0.8rem; font-weight: bold; transform: rotate(45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .badge { position: absolute; top: 15px; right: 15px; background: #002D56; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
 
-        /* 擬真彈出視窗 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,21,43,0.85); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
-        .modal-content { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 650px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: #999; }
+        /* 擬真視窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: white; padding: 35px; border-radius: 12px; width: 90%; max-width: 650px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; cursor: pointer; color: #999; }
         .close-btn:hover { color: #8c1515; }
         
-        /* 表單與按鈕 */
-        select, input { width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
-        .btn-primary { background: #00152b; color: white; border: none; padding: 15px; border-radius: 5px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-primary:hover { background: #8c1515; }
-
-        /* AI 掃描進度條特效 */
-        .scanner-box { display: none; margin-top: 20px; border: 1px solid #c5a059; padding: 20px; border-radius: 8px; background: #fffbf0; }
-        .progress-bg { width: 100%; background: #ddd; height: 15px; border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #c5a059, #8c1515); transition: width 2s ease-in-out; }
-        #scanResult { display: none; margin-top: 15px; font-weight: bold; color: #8c1515; }
-
-        /* 成功提示 */
-        #toast { display: none; position: fixed; bottom: 30px; right: 30px; background: #28a745; color: white; padding: 20px 30px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 2000; animation: slideUp 0.5s ease; }
-        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    </style>
-</head>
-<body>
-    <div id="toast">✅ 操作成功！</div>
-
-    <div class="sidebar">
-        <h2>極元教研中樞<br><span style="font-size: 0.8rem; color: #fff;">王閔弘 副校長 專屬端</span></h2>
-        <a href="official-docs.html" class="menu-item">✅ 公文與假單簽核</a>
-        <a href="#" class="menu-item" onclick="openModal('gradeModal')">📝 期末成績登錄</a>
-        <a href="#" class="menu-item" onclick="openModal('talentModal')">🌟 勝發人才推薦</a>
-        <a href="#" class="menu-item" onclick="openModal('aiModal')">🤖 AI 論文防偽掃描</a>
-        <a href="#" class="menu-item">🔬 4500億預算控管</a>
-    </div>
-
-    <div class="main-content">
-        <div class="header">
-            <div style="font-size: 1.2rem; font-weight: bold; color: #00152b;">歡迎登入，王閔弘 副校長 (最高系統權限)</div>
-            <a href="index.html" class="logout-btn">安全登出</a>
-        </div>
-
-        <div class="grid">
-            <div class="card" onclick="window.location.href='official-docs.html'">
-                <div class="badge">急件待辦</div>
-                <h3>✅ 公文與假單簽核</h3>
-                <p>您有 3 筆勝發集團撥款與人事機密公文等待數位憑證簽署。</p>
-            </div>
-            
-            <div class="card" onclick="openModal('aiModal')">
-                <div class="badge" style="background: #00152b;">AI 輔助</div>
-                <h3>🤖 AI 論文與幻覺掃描</h3>
-                <p>啟動副校長專屬 LLM 系統，掃描學生專題報告是否存在抄襲或 AI 運算幻覺。</p>
-            </div>
-
-            <div class="card" onclick="openModal('talentModal')">
-                <div class="badge" style="background: #c5a059; color: #00152b;">集團直通</div>
-                <h3>🌟 勝發集團人才推薦</h3>
-                <p>將極元科大的頂尖天才，直接保送進入勝發集團的全球超級廠區與機密部門。</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="aiModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('aiModal')">&times;</span>
-            <h2 style="color: #00152b;">🤖 亞原子級 AI 論文防偽掃描</h2>
-            <p>請選擇您要掃描的學生專題檔案：</p>
-            <select id="docSelect">
-                <option>張同學_量子密碼學期末報告.pdf</option>
-                <option>陳同學_邊緣運算晶片架構.pdf</option>
-            </select>
-            <button class="btn-primary" onclick="startScan()">啟動深度神經掃描</button>
-            
-            <div class="scanner-box" id="scannerBox">
-                <div style="font-weight: bold; color: #00152b;">系統正在分析演算法邏輯與文獻交叉比對...</div>
-                <div class="progress-bg"><div class="progress-fill" id="scanProgress"></div></div>
-                <div id="scanResult">
-                    ⚠️ 掃描完成：偵測到 15% 的程式碼由外部未授權 AI 生成 (具備輕微幻覺現象)。建議退回重寫。
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="talentModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('talentModal')">&times;</span>
-            <h2 style="color: #00152b;">🌟 勝發集團 人才直升推薦</h2>
-            <p>經副校長推薦之學生，將跳過集團 HR 面試，直接由技術部門主管任用。</p>
-            
-            <label>選擇頂尖學生：</label>
-            <select>
-                <option>張同學 (電機資訊學院 - 卷哥)</option>
-                <option>林同學 (光電量子所 - 博士候選人)</option>
-            </select>
-
-            <label>分發至勝發集團機密部門：</label>
-            <select>
-                <option>【台灣總部】量子中樞與亞原子實驗室 (起薪 NT$ 1200萬)</option>
-                <option>【美洲樞紐】星際通訊陣列研發中心 (起薪 USD$ 45萬)</option>
-                <option>【非洲基地】行星級大氣工程部 (起薪 NT$ 1500萬)</option>
-            </select>
-            
-            <button class="btn-primary" onclick="submitTalent()" style="background: #c5a059; color: #00152b;">送出保送推薦公文</button>
-        </div>
-    </div>
-
-    <script>
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        /* 表單元素 */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #333; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; box-sizing: border-box; }
+        .btn-submit { background: #8c1515; color: white; border: none; padding: 12px; border-radius: 5px; font-size: 1.1rem; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background: #6b0f0f; }
         
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-            // 重置 AI 掃描器狀態
-            if(id === 'aiModal') {
-                document.getElementById('scannerBox').style.display = 'none';
-                document.getElementById('scanProgress').style.width = '0%';
-                document.getElementById('scanResult').style.display = 'none';
-            }
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
-
-        // AI 掃描器動畫邏輯
-        function startScan() {
-            document.getElementById('scannerBox').style.display = 'block';
-            document.getElementById('scanResult').style.display = 'none';
-            
-            // 觸發進度條動畫
-            setTimeout(() => { document.getElementById('scanProgress').style.width = '100%'; }, 100);
-            
-            // 2秒後顯示結果
-            setTimeout(() => { document.getElementById('scanResult').style.display = 'block'; }, 2000);
-        }
-
-        // 人才推薦提交邏輯
-        function submitTalent() {
-            closeModal('talentModal');
-            showToast('🌟 推薦成功！該名學生資料已加密傳輸至勝發集團總指揮部。');
-        }
-    </script>
-</body>
-</html>
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #f9

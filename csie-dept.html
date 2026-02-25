@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資訊工程學系 CSIE | 極元科技大學 電資學院</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root { 
+            --gold: #c5a059; --cyan: #00f0ff; --red: #8c1515; 
+            --dark: #05070a; --panel: rgba(13, 17, 23, 0.85); --border: #30363d; 
+        }
+        body { margin: 0; font-family: 'Noto Sans TC', sans-serif; background: var(--dark); color: #c9d1d9; overflow-x: hidden; }
+        
+        /* 滾動條美化 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+        /* 頂部導航 (玻璃擬態) */
+        header { position: fixed; top: 0; width: 100%; height: 70px; background: rgba(5, 7, 10, 0.8); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 50px; box-sizing: border-box; z-index: 1000; transition: 0.3s; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--cyan); font-family: 'Share Tech Mono'; font-size: 1rem; }
+        nav { display: flex; gap: 30px; }
+        nav a { color: #fff; text-decoration: none; font-weight: bold; transition: 0.3s; padding: 5px 10px; border-radius: 4px; }
+        nav a:hover { color: var(--dark); background: var(--cyan); box-shadow: 0 0 15px var(--cyan); }
+
+        /* 英雄區 (大首圖) */
+        .hero { height: 100vh; background: radial-gradient(circle at center, rgba(0,240,255,0.1) 0%, var(--dark) 70%), url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
+        .hero::after { content: ''; position: absolute; bottom: 0; width: 100%; height: 150px; background: linear-gradient(transparent, var(--dark)); }
+        .hero h1 { font-size: 5rem; color: #fff; margin: 0; text-shadow: 0 0 20px rgba(0,240,255,0.5); font-weight: 900; letter-spacing: 5px; animation: glow 2s infinite alternate; }
+        .hero p { font-size: 1.5rem; color: var(--gold); font-family: 'Share Tech Mono'; letter-spacing: 2px; margin-top: 10px; }
+        .hero-badges { display: flex; gap: 15px; margin-top: 30px; z-index: 10; }
+        .badge { background: rgba(0,0,0,0.6); border: 1px solid var(--cyan); color: var(--cyan); padding: 8px 20px; border-radius: 20px; font-weight: bold; font-family: 'Share Tech Mono'; backdrop-filter: blur(5px); }
+
+        /* 核心技術網格 */
+        .section { padding: 100px 10%; position: relative; z-index: 10; }
+        .sec-title { font-size: 2.5rem; color: #fff; text-align: center; margin-bottom: 60px; }
+        .sec-title span { color: var(--gold); }
+        
+        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .tech-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 40px 30px; text-align: center; transition: 0.4s; position: relative; overflow: hidden; cursor: pointer; }
+        .tech-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 3px; background: var(--cyan); transition: 0.4s; }
+        .tech-card:hover { transform: translateY(-10px); border-color: var(--cyan); box-shadow: 0 10px 30px rgba(0,240,255,0.1); }
+        .tech-card:hover::before { left: 0; }
+        .tech-icon { font-size: 3rem; margin-bottom: 20px; display: inline-block; }
+        .tech-card h3 { color: #fff; font-size: 1.5rem; margin-top: 0; }
+        .tech-card p { color: #8b949e; line-height: 1.6; }
+
+        /* 實驗室實時狀態 (互動區) */
+        .lab-status-panel { background: rgba(0,0,0,0.8); border: 1px solid var(--border); border-radius: 12px; padding: 40px; }
+        .lab-list { display: flex; flex-direction: column; gap: 15px; }
+        .lab-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(255,255,255,0.02); border: 1px solid #222; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        .lab-item:hover { background: rgba(197,160,89,0.1); border-color: var(--gold); }
+        .lab-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1.2rem; }
+        .lab-info p { margin: 0; color: #888; font-size: 0.9rem; font-family: 'Share Tech Mono'; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px currentColor; }
+
+        /* 入學終端機 (互動體驗) */
+        .terminal-container { background: #000; border: 1px solid #333; border-radius: 8px; padding: 30px; font-family: 'Share Tech Mono', monospace; color: #0f0; max-width: 800px; margin: 0 auto; box-shadow: 0 20px 50px rgba(0,0,0,0.8); position: relative; }
+        .terminal-header { position: absolute; top: 0; left: 0; width: 100%; background: #111; padding: 5px 15px; box-sizing: border-box; font-size: 0.8rem; color: #666; border-bottom: 1px solid #333; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        #term-output { margin-top: 20px; min-height: 200px; }
+        .blink-cursor { animation: blink 1s step-end infinite; }
+        .term-btn { background: transparent; border: 1px solid #0f0; color: #0f0; padding: 10px 20px; font-family: inherit; font-size: 1rem; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .term-btn:hover { background: #0f0; color: #000; }
+
+        /* 機密權限 Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-box { background: var(--panel); border: 1px solid var(--red); padding: 40px; border-radius: 8px; text-align: center; width: 400px; box-shadow: 0 0 40px rgba(140,21,21,0.4); }
+        .pin-input { width: 100%; padding: 15px; background: #000; border: 1px solid #444; color: var(--gold); font-size: 1.5rem; text-align: center; letter-spacing: 5px; margin: 20px 0; outline: none; }
+        .pin-input:focus { border-color: var(--red); }
+
+        @keyframes glow { from { text-shadow: 0 0 10px var(--cyan); } to { text-shadow: 0 0 30px var(--cyan), 0 0 10px #fff; } }
+        @keyframes blink { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="clearanceModal" class="modal">
+        <div class="modal-box">
+            <h2 style="color: var(--red); font-family: 'Share Tech Mono'; margin-top:0;">RESTRICTED AREA</h2>
+            <p>王閔弘副校長 專屬亞原子實驗室<br>請輸入 Level 5 授權金鑰</p>
+            <input type="password" id="labPin" class="pin-input" placeholder="****">
+            <button class="term-btn" style="border-color:var(--red); color:var(--red); width:100%;" onclick="verifyPin()">VERIFY</button>
+            <p id="pinError" style="color:var(--red); display:none; margin-top:15px; font-weight:bold;">ACCESS DENIED</p>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">資訊工程學系 <span>DEPARTMENT OF CSIE</span></div>
+        <nav>
+            <a href="index.html">返回極元科大</a>
+            <a href="#tech">核心技術領域</a>
+            <a href="#labs">聯合實驗室</a>
+            <a href="#apply" style="color: var(--gold); border: 1px solid var(--gold);">申請入學 (Apply)</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>資訊工程學系</h1>
+        <p>勝發集團 全球亞原子與資安防禦指揮大腦</p>
+        <div class="hero-badges">
+            <div class="badge">#勝發集團指定徵才系所</div>
+            <div class="badge">#全台唯一常溫量子電腦中心</div>
+            <div class="badge">#百億級研究預算</div>
+        </div>
+    </section>
+
+    <section id="tech" class="section">
+        <h2 class="sec-title">定義未來的 <span>核心學程架構</span></h2>
+        <div class="tech-grid">
+            <div class="tech-card" onclick="alert('本學程由勝發集團提供業界最高規格 ISMS 實戰靶場。')">
+                <div class="tech-icon">🛡️</div>
+                <h3>資訊安全與主動防禦</h3>
+                <p>涵蓋網路攻防技術、物聯網資安威脅檢測與防護。訓練直達「勝發集團 Level 5」資訊安全管理系統 (ISMS) 標準。</p>
+            </div>
+            <div class="tech-card" onclick="alert('串接集團算力，讓學生親手訓練兆級參數大模型。')">
+                <div class="tech-icon">🧠</div>
+                <h3>生成式 AI 與大數據</h3>
+                <p>從機器學習、影像處理到人工智慧實務應用。由王閔弘副校長親自指導，破解 AI 幻覺與建立自我修正系統。</p>
+            </div>
+            <div class="tech-card" onclick="alert('直接參與第七代星際通訊陣列之晶片研發。')">
+                <div class="tech-icon">⚙️</div>
+                <h3>亞原子 IC 設計與架構</h3>
+                <p>驅動產業的核心力量：涵蓋 EDA、IC Design 至軟硬體系統整合。培育全球頂尖數位與類比 IC 設計工程師。</p>
+            </div>
+            <div class="tech-card" onclick="alert('進入數位雙生宇宙，監控全球 742 座廠區。')">
+                <div class="tech-icon">🥽</div>
+                <h3>AIoT 與 XR 數位雙生</h3>
+                <p>雲端運算結合 XR 數位內容開發。建構與勝發全球 742 座廠區同步的虛擬平台，實現行星級遠端操控。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="labs" class="section" style="background: rgba(0,0,0,0.5);">
+        <h2 class="sec-title">極元-勝發 <span>聯合實驗室矩陣</span></h2>
+        <div class="lab-status-panel">
+            <div style="display:flex; justify-content:space-between; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px;">
+                <span style="font-family:'Share Tech Mono'; color:var(--cyan);">SYS.MONITORING.ACTIVE</span>
+                <span style="color:#888;">點擊查看各實驗室即時數據</span>
+            </div>
+            <div class="lab-list">
+                <div class="lab-item" onclick="showLabInfo('XR 虛擬實境與數位行銷開發中心\n當前狀態：正在渲染美洲廠區數位雙生模型\n伺服器負載：42%')">
+                    <div class="lab-info">
+                        <h4>XR 虛擬實境與數位行銷開發中心</h4>
+                        <p>指導教授：趙鼎盛 院長 | 負責 AIoT 整合與平台建置</p>
+                    </div>
+                    <div style="color:var(--cyan); font-family:'Share Tech Mono';">
+                        <span class="status-dot" style="background:var(--cyan);"></span> ONLINE
+                    </div>
+                </div>
+                
+                <div class="lab-item" onclick="showLabInfo('大數據與雲端運算所\n當前狀態：處理全球金融清算網加密協議\n算力分配：1.2 ExaFLOPS')">
+                    <div class="lab-info">
+                        <h4>大數據與雲端運算所</h4>
+                        <p>負責：機器學習、系統與資料庫安全</p>
+                    </div>
+                    <div style="color:#3fb950; font-family:'Share Tech Mono';">
+                        <span class="status-dot" style="background:#3fb950;"></span> STABLE
+                    </div>
+                </div>
+
+                <div class="lab-item" style="border-color: var(--red);" onclick="openClearance()">
+                    <div class="lab-info">
+                        <h4 style="color:var(--red);">【最高機密】亞原子核心與量子密碼實驗室</h4>
+                        <p>指導教授：王閔弘 副校長 | 負責：勝發集團主動防禦架構</p>
+                    </div>
+                    <div style="color:var(--red); font-family:'Share Tech Mono';">
+                        <span class="status-dot" style="background:var(--red);"></span> RESTRICTED
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="apply" class="section">
+        <h2 class="sec-title">加入我們，<span>改寫世界運算法則</span></h2>
+        <div class="terminal-container">
+            <div class="terminal-header">bash - root@jut-csie-enrollment:~</div>
+            <div id="term-output">
+                <span style="color:#888;">// 極元科技大學 資工系 菁英招募系統</span><br>
+                <span style="color:#888;">// 備註：僅接受全球前 1% 天才申請。具備勝發星際獎學金資格。</span><br><br>
+                root@csie:~$ initiating enrollment protocol...<br>
+                root@csie:~$ <span class="blink-cursor">_</span>
+            </div>
+            <div id="apply-action" style="display:none; text-align:center;">
+                <p style="color:#fff; margin-bottom:20px;">系統已確認您的硬體連線安全。準備好接受面試挑戰了嗎？</p>
+                <button class="term-btn" onclick="startHack()">[ 啟動能力驗證 (Start Verification) ]</button>
+            </div>
+        </div>
+    </section>
+
+    <footer style="text-align: center; padding: 40px; background: #010409; color: #666; border-top: 1px solid #222; font-size: 0.9rem;">
+        辦公室：極元科技大學 電機資訊大樓 7F 資訊工程系<br>
+        TEL：07-XXXXXXX ext.3702 | Email：csie@shengfa.global<br>
+        &copy; 2026 極元科技大學 資工系. 受勝發集團最高資安防禦協議保護.
+    </footer>
+
+    <script>
+        // 實驗室資訊彈窗
+        function showLabInfo(info) {
+            alert(info);
+        }
+
+        // 最高機密實驗室解鎖邏輯
+        function openClearance() {
+            document.getElementById('clearanceModal').style.display = 'flex';
+            document.getElementById('labPin').value = '';
+            document.getElementById('pinError').style.display = 'none';
+        }
+
+        function verifyPin() {
+            const pin = document.getElementById('labPin').value;
+            // 設定密碼為 123
+            if(pin === '123') {
+                document.getElementById('clearanceModal').style.display = 'none';
+                alert('🔓 授權成功！歡迎進入王閔弘副校長的亞原子實驗室。\n您現在可以存取「量子補償演算法」與「國家數位盾牌」的原始碼。');
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+                document.getElementById('labPin').value = '';
+            }
+        }
+
+        // 關閉 Modal (點擊背景)
+        document.getElementById('clearanceModal').addEventListener('click', function(e) {
+            if(e.target === this) this.style.display = 'none';
+        });
+
+        // 終端機打字效果
+        window.addEventListener('scroll', function initTerm() {
+            const termSection = document.getElementById('apply');
+            const pos = termSection.getBoundingClientRect().top;
+            if (pos < window.innerHeight - 100) {
+                window.removeEventListener('scroll', initTerm);
+                typeTerm();
+            }
+        });
+
+        function typeTerm() {
+            const term = document.getElementById('term-output');
+            const msgs = [
+                "scanning global IP...",
+                "bypassing standard firewalls... done.",
+                "fetching applicant profile...",
+                "WARNING: HIGH IQ DETECTED.",
+                "system ready."
+            ];
+            let i = 0;
+            term.innerHTML = `<span style="color:#888;">// 極元科技大學 資工系 菁英招募系統</span><br><br>`;
+            
+            const interval = setInterval(() => {
+                if (i < msgs.length) {
+                    term.innerHTML += `root@csie:~$ ${msgs[i]}<br>`;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    term.innerHTML += `root@csie:~$ <span class="blink-cursor">_</span>`;
+                    document.getElementById('apply-action').style.display = 'block';
+                }
+            }, 800);
+        }
+
+        function startHack() {
+            document.getElementById('apply-action').innerHTML = `<span style='color:var(--cyan);'>連線至勝發集團人資總處... 您的面試代碼為 SF-CSIE-992。<br>請留意您的信箱。</span>`;
+        }
+    </script>
+</body>
+</html>

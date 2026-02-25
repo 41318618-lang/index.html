@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Shengfa Group | 總指揮部最高終端</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        
+        :root { --sf-gold: #c5a059; --sf-red: #cc0000; --sf-bg: #050505; --sf-panel: #0f0f13; --sf-text: #e0e0e0; --sf-cyan: #00f0ff; }
+        body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background: var(--sf-bg); color: var(--sf-text); overflow: hidden; height: 100vh; }
+        
+        /* 登入遮罩系統 */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1a0505 0%, #000000 100%); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .login-box { background: rgba(15,15,19,0.9); border: 1px solid var(--sf-red); padding: 50px; border-radius: 5px; box-shadow: 0 0 30px rgba(204,0,0,0.3); text-align: center; width: 400px; position: relative; }
+        .login-box::before { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; background: linear-gradient(45deg, var(--sf-red), transparent, var(--sf-gold)); z-index: -1; filter: blur(10px); opacity: 0.5; animation: pulseGlow 3s infinite; }
+        .login-box h1 { font-family: 'Share Tech Mono', monospace; color: var(--sf-gold); font-size: 2rem; margin-top: 0; letter-spacing: 2px; }
+        .login-input { width: 100%; padding: 15px; margin: 15px 0; background: #000; border: 1px solid #333; color: var(--sf-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; box-sizing: border-box; text-align: center; letter-spacing: 2px; }
+        .login-input:focus { outline: none; border-color: var(--sf-red); box-shadow: 0 0 10px rgba(204,0,0,0.5); }
+        .login-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--sf-red); color: var(--sf-red); font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; letter-spacing: 2px; text-transform: uppercase; }
+        .login-btn:hover { background: var(--sf-red); color: #fff; box-shadow: 0 0 20px var(--sf-red); }
+        #login-error { color: var(--sf-gold); font-family: 'Share Tech Mono', monospace; margin-top: 15px; display: none; }
+
+        /* 內網主系統 (預設隱藏) */
+        #dashboard { display: none; height: 100vh; display: flex; flex-direction: column; opacity: 0; transition: opacity 2s ease-in; }
+        
+        /* 頂部控制列 */
+        header { background: #0a0a0d; border-bottom: 2px solid var(--sf-red); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .brand { font-family: 'Share Tech Mono', monospace; font-size: 1.8rem; color: var(--sf-gold); display: flex; align-items: center; gap: 15px; }
+        .blink-dot { width: 12px; height: 12px; background: var(--sf-red); border-radius: 50%; box-shadow: 0 0 10px var(--sf-red); animation: blink 1s infinite; }
+        .user-profile { font-family: 'Share Tech Mono', monospace; color: var(--sf-cyan); text-align: right; }
+        
+        /* 網格佈局 */
+        .main-grid { display: grid; grid-template-columns: 250px 1fr 350px; height: calc(100vh - 70px); }
+        
+        /* 左側導覽 */
+        .sidebar { background: #0a0a0d; border-right: 1px solid #222; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .nav-btn { background: transparent; border: 1px solid #333; color: #888; padding: 15px; text-align: left; font-family: 'Share Tech Mono', monospace; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+        .nav-btn:hover, .nav-btn.active { border-color: var(--sf-gold); color: var(--sf-gold); background: rgba(197,160,89,0.1); padding-left: 25px; }
+
+        /* 中央監控區 */
+        .center-panel { padding: 30px; overflow-y: auto; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
+        .h2-title { font-family: 'Share Tech Mono', monospace; color: var(--sf-text); border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 25px; text-align: center; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        .stat-value { font-family: 'Share Tech Mono', monospace; font-size: 2.5rem; color: var(--sf-cyan); margin: 10px 0; text-shadow: 0 0 10px var(--sf-cyan); }
+        .stat-label { color: #888; font-size: 0.9rem; letter-spacing: 1px; }
+
+        /* 終端機模擬器 */
+        .terminal { background: #000; border: 1px solid #333; padding: 20px; font-family: 'Share Tech Mono', monospace; color: #0f0; height: 250px; overflow-y: auto; border-radius: 4px; box-shadow: inset 0 0 15px rgba(0,255,0,0.1); margin-bottom: 30px; }
+        .terminal p { margin: 5px 0; }
+        
+        /* 亞洲樞紐/全球分佈 */
+        .global-map { background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 20px; border-radius: 4px; }
+        .progress-row { margin-bottom: 15px; }
+        .p-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-family: 'Share Tech Mono', monospace; color: #aaa; }
+        .p-bar-bg { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
+        .p-bar-fill { height: 100%; background: var(--sf-gold); box-shadow: 0 0 10px var(--sf-gold); }
+
+        /* 右側控制台 (核心互動區) */
+        .control-panel { background: #0a0a0d; border-left: 1px solid #222; padding: 20px; }
+        .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #222; margin-bottom: 15px; background: #000; border-radius: 4px; }
+        .switch-label { font-family: 'Share Tech Mono', monospace; color: #ccc; }
+        
+        /* 擬真切換開關 */
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--sf-red); box-shadow: 0 0 10px var(--sf-red); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        /* 系統提示 Toast */
+        #sys-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--sf-red); color: white; padding: 15px 40px; font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; font-weight: bold; border-radius: 4px; box-shadow: 0 0 20px var(--sf-red); transition: 0.3s; z-index: 10000; border: 1px solid #fff; }
+
+        @keyframes pulseGlow { 0% { opacity: 0.3; } 50% { opacity: 0.6; } 100% { opacity: 0.3; } }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="sys-toast">⚠️ 指令已覆寫執行</div>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h1>SHENGFA_OS v9.4</h1>
+            <p style="color: #666; font-family: 'Share Tech Mono', monospace; margin-bottom: 30px;">[ RESTRICTED ACCESS : LEVEL 5 REQUIRED ]</p>
+            <input type="text" id="loginId" class="login-input" placeholder="AUTHORIZATION ID">
+            <input type="password" id="loginPwd" class="login-input" placeholder="SECURITY KEY">
+            <button class="login-btn" onclick="executeLogin()">Initiate Uplink</button>
+            <div id="login-error">ACCESS DENIED : INVALID CREDENTIALS</div>
+        </div>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+        <header>
+            <div class="brand">
+                <div class="blink-dot"></div>
+                SHENGFA GLOBAL COMMAND
+            </div>
+            <div class="user-profile">
+                <div>LOGGED IN: <span style="color: #fff;">WANG MIN-HONG (VP-001)</span></div>
+                <div style="font-size: 0.8rem; color: #888;">CLEARANCE: OMEGA MAX</div>
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <div class="sidebar">
+                <button class="nav-btn active">>&nbsp;GLOBAL_OVERVIEW</button>
+                <button class="nav-btn" onclick="sysMsg('連線至全球金融清算網...')">>&nbsp;FINANCIAL_NEXUS</button>
+                <button class="nav-btn" onclick="sysMsg('連線至極元科大 亞原子實驗室...')">>&nbsp;SUB_ATOMIC_LAB</button>
+                <button class="nav-btn" onclick="sysMsg('開啟行星級大氣工程參數...')">>&nbsp;ATMOSPHERE_CTRL</button>
+                <div style="flex-grow: 1;"></div>
+                <button class="nav-btn" style="border-color: var(--sf-red); color: var(--sf-red);" onclick="location.href='index.html'">>&nbsp;DISCONNECT_&_EXIT</button>
+            </div>
+
+            <div class="center-panel">
+                <h2 class="h2-title">IMPERIAL METRICS (帝國實時數據)</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">MARKET CAP (NTD)</div>
+                        <div class="stat-value">1,576 T</div>
+                        <div style="color: #0f0; font-size: 0.8rem;">▲ +0.4% TODAY (CODE:7352)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">CASH RESERVES (NTD)</div>
+                        <div class="stat-value">971 T</div>
+                        <div style="color: #888; font-size: 0.8rem;">SECURED IN 12 QUANTUM VAULTS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">GLOBAL WORKFORCE</div>
+                        <div class="stat-value">17.39 M</div>
+                        <div style="color: var(--sf-gold); font-size: 0.8rem;">TAIWAN CORE: 571,000 ACTIVE</div>
+                    </div>
+                </div>
+
+                <div class="global-map">
+                    <h2 class="h2-title" style="border: none;">GLOBAL 742 HUB DEPLOYMENT (全球廠區分配)</h2>
+                    
+                    <div class="progress-row">
+                        <div class="p-label"><span>ASIA (半導體量產/消費電子)</span><span>330 HUBS / 45%</span></div>
+                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 45%; background: var(--sf-cyan); box-shadow: 0 0 10px var(--sf-cyan);"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <div class="p-label"><span>AMERICAS (航太運輸/自駕醫療)</span><span>185 HUBS / 25%</span></div>
+                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 25%;"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <div class="p-label"><span>EUROPE (精密機械/核融能源)</span><span>120 HUBS / 20%</span></div>
+                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 20%;"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <div class="p-label"><span>AFRICA (特殊原物料/綠能基地)</span><span>60 HUBS / 7%</span></div>
+                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 7%;"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <div class="p-label"><span>OCEANIA (深海工程/星際通訊)</span><span>27 HUBS / 3%</span></div>
+                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 3%;"></div></div>
+                    </div>
+                    <div class="progress-row">
+                        <div class="p-label"><span style="color: var(--sf-red); font-weight: bold;">TAIWAN CORE (極元科大 亞原子/量子中樞)</span><span>20 MEGA-HUBS</span></div>
+                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 100%; background: var(--sf-red); box-shadow: 0 0 10px var(--sf-red);"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <h2 class="h2-title">SYSTEM TERMINAL</h2>
+                <div class="terminal" id="term-output">
+                    <p>> SHENGFA MAINFRAME INITIALIZED...</p>
+                    <p>> SECURE CONNECTION ESTABLISHED.</p>
+                </div>
+
+                <h2 class="h2-title">OVERRIDE CONTROLS (權限覆寫)</h2>
+                
+                <div class="switch-row">
+                    <div class="switch-label">QUANTUM CORE COOLING<br><span style="font-size:0.7rem; color:#666;">常溫量子電腦冷卻系統</span></div>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="sysMsg(this.checked ? '量子冷卻系統：已啟動 (STABLE)' : '⚠️ 警告：量子冷卻系統已關閉，核心溫度上升中')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-row">
+                    <div class="switch-label">GLOBAL DEFENSE SHIELD<br><span style="font-size:0.7rem; color:#666;">極元科大/台灣主動式防禦盾牌</span></div>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="sysMsg(this.checked ? '國家數位盾牌：已上線防護' : '⚠️ 警告：數位防禦盾牌已降下')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-row">
+                    <div class="switch-label">SATELLITE ARRAY SYNC<br><span style="font-size:0.7rem; color:#666;">第七代星際通訊陣列連線</span></div>
+                    <label class="switch">
+                        <input type="checkbox" onchange="sysMsg(this.checked ? '星際陣列連線成功 (SIGNAL 100%)' : '星際陣列已斷開連接')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <button class="login-btn" style="margin-top: 10px; font-size: 1rem; padding: 10px;" onclick="sysMsg('執行緊急協議... 王閔弘權限已確認。 撥款 990 億至極元科大帳戶。')">EXECUTE DIRECTIVE OMEGA</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 登入邏輯
+        function executeLogin() {
+            const id = document.getElementById('loginId').value;
+            const pwd = document.getElementById('loginPwd').value;
+            const error = document.getElementById('login-error');
+            const overlay = document.getElementById('login-overlay');
+            const dashboard = document.getElementById('dashboard');
+
+            if (id === 'VP-001' && pwd === 'OMEGA') {
+                error.style.display = 'none';
+                document.querySelector('.login-btn').innerText = 'DECRYPTING...';
+                
+                // 模擬解密延遲
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        dashboard.style.display = 'flex';
+                        // 觸發淡入效果
+                        setTimeout(() => { dashboard.style.opacity = '1'; }, 50);
+                        typeTerminal();
+                    }, 500);
+                }, 1500);
+            } else {
+                error.style.display = 'block';
+                document.getElementById('loginPwd').value = '';
+            }
+        }
+
+        // 終端機打字效果
+        function typeTerminal() {
+            const term = document.getElementById('term-output');
+            const messages = [
+                "> AUTHENTICATING OMEGA CLEARANCE...",
+                "> CLEARANCE ACCEPTED: DR. WANG MIN-HONG.",
+                "> SYNCING WITH TAIWAN CORE MEGA-HUBS (20/20)... SUCCESS.",
+                "> AURELIUS FINANCIAL NEXUS... CONNECTED.",
+                "> WAITING FOR DIRECTIVE..."
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < messages.length) {
+                    term.innerHTML += `<p>${messages[i]}</p>`;
+                    term.scrollTop = term.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 600);
+        }
+
+        // 系統提示邏輯
+        function sysMsg(msg) {
+            // 寫入終端機
+            const term = document.getElementById('term-output');
+            const time = new Date().toLocaleTimeString();
+            term.innerHTML += `<p style="color:var(--sf-gold);">[${time}] > ${msg}</p>`;
+            term.scrollTop = term.scrollHeight;
+
+            // 彈出強烈提示框
+            const toast = document.getElementById('sys-toast');
+            toast.innerText = `SYS_MSG: ${msg}`;
+            toast.style.bottom = '30px';
+            setTimeout(() => { toast.style.bottom = '-100px'; }, 3000);
+        }
+        
+        // 允許按 Enter 鍵登入
+        document.getElementById("loginPwd").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                executeLogin();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,128 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>首頁 | 極元科技大學 Jiyuan University of Technology</title>
     <style>
-        :root {
-            --university-blue: #002D56;
-            --academic-red: #A51C30;
-            --bg-light: #F8F9FA;
-        }
-        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; margin: 0; padding: 0; background: var(--bg-light); color: #333; }
-        
-        /* 頂部輔助選單 */
+        :root { --university-blue: #002D56; --academic-red: #A51C30; --bg-light: #F8F9FA; }
+        body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; margin: 0; background: var(--bg-light); color: #333; }
         .top-bar { background: #E9ECEF; padding: 5px 10%; text-align: right; font-size: 0.85rem; color: #555; }
         .top-bar a { color: #555; text-decoration: none; margin-left: 15px; }
-        .top-bar a:hover { color: var(--academic-red); }
-
-        /* 主導覽列 */
         header { background: white; padding: 20px 10%; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--university-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 1.8rem; font-weight: 900; color: var(--university-blue); letter-spacing: 1px; display: flex; flex-direction: column; }
-        .logo span { font-size: 0.9rem; font-weight: normal; color: #777; margin-top: 3px; }
-        
+        .logo { font-size: 1.8rem; font-weight: 900; color: var(--university-blue); letter-spacing: 1px; }
         nav ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 25px; }
-        nav a { text-decoration: none; color: #222; font-weight: bold; font-size: 1.1rem; padding: 10px 0; transition: color 0.3s; }
+        nav a { text-decoration: none; color: #222; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
         nav a:hover { color: var(--academic-red); }
-
-        /* 輪播/形象大圖區 */
-        .hero { background: linear-gradient(rgba(0,45,86,0.8), rgba(0,45,86,0.8)), url('https://via.placeholder.com/1920x600/002D56/ffffff?text=Jiyuan+University') center/cover; color: white; text-align: center; padding: 120px 20px; border-bottom: 5px solid var(--academic-red); }
-        .hero h1 { font-size: 3.5rem; margin: 0 0 20px 0; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .hero p { font-size: 1.3rem; max-width: 800px; margin: 0 auto; line-height: 1.6; opacity: 0.9; }
-
-        /* 主要內容區：新聞與公告 */
+        .hero { background: linear-gradient(rgba(0,45,86,0.8), rgba(0,45,86,0.8)), url('https://via.placeholder.com/1920x600/002D56/ffffff?text=Jiyuan+University') center/cover; color: white; text-align: center; padding: 100px 20px; border-bottom: 5px solid var(--academic-red); }
         .container { max-width: 1200px; margin: 50px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
-        
-        h2 { color: var(--university-blue); border-left: 5px solid var(--academic-red); padding-left: 15px; margin-top: 0; }
-        
-        .news-list { list-style: none; padding: 0; }
-        .news-item { background: white; padding: 20px; margin-bottom: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 3px solid transparent; transition: all 0.3s; }
-        .news-item:hover { border-left-color: var(--academic-red); transform: translateX(5px); }
-        .news-date { color: var(--academic-red); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
-        .news-title { font-size: 1.2rem; font-weight: bold; color: #222; margin-bottom: 10px; cursor: pointer; }
-        .news-title:hover { color: var(--university-blue); }
-
-        /* 側邊欄：快速連結與行政單位 */
-        .sidebar { background: white; padding: 25px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .quick-links { display: flex; flex-direction: column; gap: 10px; }
-        .quick-links a { display: block; padding: 12px 15px; background: var(--bg-light); color: var(--university-blue); text-decoration: none; font-weight: bold; border-radius: 4px; transition: 0.3s; border: 1px solid #E9ECEF; }
+        h2 { color: var(--university-blue); border-left: 5px solid var(--academic-red); padding-left: 15px; }
+        .news-item { background: white; padding: 20px; margin-bottom: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .quick-links a { display: block; padding: 12px 15px; background: #eee; color: var(--university-blue); text-decoration: none; font-weight: bold; border-radius: 4px; margin-bottom: 8px; transition: 0.3s; border: 1px solid #ddd; }
         .quick-links a:hover { background: var(--university-blue); color: white; }
-        
-        /* 特別強調副校長室的按鈕 */
-        .highlight-link { border-left: 4px solid var(--academic-red) !important; }
-
-        footer { background: #1A1A1A; color: #888; text-align: center; padding: 40px 20px; font-size: 0.9rem; line-height: 1.8; margin-top: 50px; }
-        footer span { color: #BBB; font-weight: bold; }
+        .highlight-link { border-left: 5px solid var(--academic-red) !important; background: #fff5f5 !important; }
+        footer { background: #1A1A1A; color: #888; text-align: center; padding: 40px; font-size: 0.9rem; margin-top: 50px; }
     </style>
 </head>
 <body>
-
     <div class="top-bar">
-        <a href="#">學生資訊系統</a> | 
-        <a href="#">教職員入口</a> | 
-        <a href="#">校友中心</a> | 
-        <a href="#" style="color: var(--academic-red); font-weight: bold;">Shengfa Group Intranet (勝發集團內網)</a>
+        <a href="#">學生系統</a> | <a href="#">教職員入口</a> | <a href="#" style="color: var(--academic-red);">Shengfa Intranet</a>
     </div>
-
     <header>
-        <div class="logo">
-            極元科技大學
-            <span>Jiyuan University of Technology</span>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="#">認識極元</a></li>
-                <li><a href="#">招生資訊</a></li>
-                <li><a href="#">學術單位</a></li>
-                <li><a href="#">研究發展</a></li>
-                <li><a href="#">產學合作</a></li>
-            </ul>
-        </nav>
+        <div class="logo">極元科技大學 <span>JUT</span></div>
+        <nav><ul><li><a href="#">認識極元</a></li><li><a href="#">學術單位</a></li><li><a href="#">產學合作</a></li></ul></nav>
     </header>
-
     <div class="hero">
         <h1>引領亞原子科技，定義未來世界</h1>
-        <p>作為全球第一大科技帝國「勝發集團」之核心學術中樞，我們不僅培育頂尖人才，更在此制定下一世代的全球科技與資安標準。</p>
+        <p>勝發集團 (Shengfa Group) 全球核心學術基地</p>
     </div>
-
     <div class="container">
         <main>
-            <h2>焦點新聞 | Campus News</h2>
-            <ul class="news-list">
-                <li class="news-item">
-                    <div class="news-date">2026.02.25</div>
-                    <div class="news-title">狂賀！本校學術副校長王閔弘博士榮獲「總統科學獎」</div>
-                    <div style="color: #666; font-size: 0.95rem;">表彰王副校長在資訊安全與量子演算法領域的開創性貢獻，為國爭光。</div>
-                </li>
-                <li class="news-item">
-                    <div class="news-date">2026.02.10</div>
-                    <div class="news-title">勝發集團挹注 4,500 億，第七代星際通訊陣列聯合實驗室於本校落成</div>
-                    <div style="color: #666; font-size: 0.95rem;">由學術副校長室主導，將整合校內電資學院資源，啟動亞原子核心製程研發。</div>
-                </li>
-                <li class="news-item">
-                    <div class="news-date">2026.01.15</div>
-                    <div class="news-title">極元科大與國防部簽署「國家數位防禦盾牌」MOU</div>
-                    <div style="color: #666; font-size: 0.95rem;">獲 650 億專案補助，全面升級台灣關鍵基礎設施防護網。</div>
-                </li>
-            </ul>
+            <h2>焦點新聞 | News</h2>
+            <div class="news-item"><strong>2026.02.25</strong><br>王閔弘博士榮獲總統科學獎，帶領本校邁向全球資安頂峰。</div>
+            <div class="news-item"><strong>2026.02.10</strong><br>勝發集團挹注 4,500 億成立亞原子實驗室。</div>
         </main>
-
-        <aside class="sidebar">
-            <h2>行政單位 | Administration</h2>
+        <aside>
+            <h2>行政與學術單位</h2>
             <div class="quick-links">
-                <a href="#">校長室</a>
-                <a href="vp-wang.html" class="highlight-link">學術副校長室 (Office of the VP) ➔</a>
-                <a href="#">行政副校長室</a>
-                <a href="#">教務處</a>
-                <a href="#">學生事務處</a>
-                <a href="#">總務處</a>
-                <a href="#">研究發展處</a>
+                <a href="president.html">校長室 ➔</a>
+                <a href="vp-wang.html" class="highlight-link">學術副校長室 (王閔弘) ➔</a>
+                <a href="admin-vp.html">行政副校長室 ➔</a>
+                <a href="academic-affairs.html">教務處 ➔</a>
+                <a href="student-affairs.html">學生事務處 ➔</a>
+                <a href="eecs-college.html">電機資訊學院 ➔</a>
             </div>
         </aside>
     </div>
-
-    <footer>
-        <span>極元科技大學 Jiyuan University of Technology</span><br>
-        校本部：台灣極元市勝發科研大道 1 號 | 電話：+886-2-XXXX-8888<br>
-        &copy; 2026 版權所有. 受勝發集團 (Shengfa Group) 全球資訊安全協議保護.
-    </footer>
-
+    <footer>&copy; 2026 極元科技大學 | 受勝發集團資訊保護協議規範</footer>
 </body>
 </html>

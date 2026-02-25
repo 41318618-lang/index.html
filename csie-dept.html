@@ -2,217 +2,309 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>資訊工程學系 | 極元科技大學 (Shengfa Core)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
 
-        :root { --sf-blue: #003060; --sf-gold: #c5a059; --sf-red: #8c1515; --bg-dark: #f8f9fa; }
-        body { margin: 0; font-family: 'Noto Sans TC', sans-serif; background: #fff; color: #333; overflow-x: hidden; }
+        :root {
+            --sf-dark: #0a0e17; --sf-panel: #131a26; --sf-border: #1f2937;
+            --sf-gold: #c5a059; --sf-cyan: #00f0ff; --sf-red: #da3633;
+            --sf-text: #d1d5db; --sf-light: #ffffff;
+        }
 
-        /* 頂部橫幅 (致敬正修科大設計並升級) */
-        .top-banner { background: var(--sf-blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--sf-gold); }
-        .logo { display: flex; align-items: center; gap: 15px; font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; }
-        .logo-icon { background: var(--sf-gold); color: #000; padding: 5px 10px; border-radius: 4px; font-family: 'Share Tech Mono'; }
+        body { margin: 0; font-family: 'Noto Sans TC', sans-serif; background-color: var(--sf-dark); color: var(--sf-text); overflow-x: hidden; }
 
-        /* 高階互動下拉選單 (Navbar) */
-        nav { background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .nav-list { list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; }
-        .nav-item { position: relative; }
-        .nav-link { display: block; padding: 20px 30px; color: var(--sf-blue); text-decoration: none; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
-        .nav-link:hover { background: var(--sf-blue); color: white; }
+        /* --- 頂部導覽 --- */
+        header { background: rgba(10, 14, 23, 0.95); border-bottom: 2px solid var(--sf-gold); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px; height: 70px; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--sf-light); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo span { background: var(--sf-cyan); color: #000; padding: 4px 8px; border-radius: 4px; font-family: 'Share Tech Mono'; font-size: 1rem; }
+        
+        .nav-menu { list-style: none; display: flex; gap: 5px; margin: 0; padding: 0; height: 100%; }
+        .nav-item { position: relative; height: 100%; display: flex; align-items: center; }
+        .nav-link { color: var(--sf-text); text-decoration: none; font-weight: bold; padding: 10px 20px; transition: 0.3s; border-radius: 4px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .nav-link:hover { color: var(--sf-cyan); background: rgba(0, 240, 255, 0.1); }
+        
+        /* 下拉選單 */
+        .dropdown { position: absolute; top: 100%; left: 0; background: var(--sf-panel); border: 1px solid var(--sf-border); border-top: 3px solid var(--sf-gold); min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .nav-item:hover .dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown a { display: block; padding: 15px 20px; color: var(--sf-text); text-decoration: none; border-bottom: 1px solid var(--sf-border); transition: 0.2s; font-weight: bold; }
+        .dropdown a:hover { background: var(--sf-gold); color: #000; padding-left: 25px; }
 
-        /* 下拉選單核心邏輯 */
-        .dropdown-menu { position: absolute; top: 100%; left: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); min-width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 3px solid var(--sf-gold); opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; list-style: none; padding: 0; margin: 0; }
-        .nav-item:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item { padding: 15px 25px; border-bottom: 1px solid #eee; cursor: pointer; color: #555; font-weight: bold; transition: 0.2s; }
-        .dropdown-item:hover { background: var(--sf-gold); color: #000; padding-left: 30px; }
+        /* --- SPA 切換視圖容器 --- */
+        .view-section { display: none; animation: fadeIn 0.4s ease forwards; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 動態內容展示區 */
-        .content-area { padding: 60px 10%; min-height: 60vh; background: #f4f6f9; }
-        .section-view { display: none; animation: slideUp 0.5s ease forwards; }
-        .section-view.active { display: block; }
+        /* --- 內部頁面標題 --- */
+        .page-header { background: linear-gradient(90deg, #05070a 0%, #131a26 100%); padding: 50px 20px; border-bottom: 1px solid var(--sf-border); text-align: center; }
+        .page-header h1 { color: var(--sf-light); font-size: 2.5rem; margin: 0 0 10px 0; border-bottom: 3px solid var(--sf-gold); display: inline-block; padding-bottom: 10px; }
+        .page-header p { color: var(--sf-cyan); font-size: 1.1rem; letter-spacing: 1px; }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- 系主任詳細介紹區 --- */
+        .chair-container { max-width: 1000px; margin: 50px auto; padding: 0 20px; }
+        .chair-card { background: var(--sf-panel); border: 1px solid var(--sf-gold); border-radius: 12px; display: flex; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+        .chair-photo { width: 300px; background: url('https://images.unsplash.com/photo-1556761175-5973dc0f32d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80') center/cover; position: relative; }
+        .chair-photo::after { content: 'CHAIR'; position: absolute; bottom: 10px; left: 10px; font-family: 'Share Tech Mono'; color: var(--sf-gold); font-size: 2rem; font-weight: bold; text-shadow: 0 2px 5px #000; }
+        .chair-info { padding: 40px; flex: 1; }
+        .chair-info h2 { color: var(--sf-light); font-size: 2.2rem; margin: 0 0 5px 0; }
+        .chair-info h4 { color: var(--sf-gold); margin: 0 0 20px 0; font-size: 1.1rem; }
+        .chair-details p { margin-bottom: 15px; line-height: 1.6; }
+        .chair-details strong { color: var(--sf-cyan); }
+        .btn-contact { background: transparent; border: 1px solid var(--sf-gold); color: var(--sf-gold); padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .btn-contact:hover { background: var(--sf-gold); color: #000; }
 
-        /* 人物卡片設計 (系主任/師資) */
-        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 30px; }
-        .profile-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border-top: 4px solid var(--sf-blue); transition: 0.3s; }
-        .profile-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,48,96,0.15); border-top-color: var(--sf-gold); }
-        .profile-header { background: #00152b; color: #fff; padding: 20px; text-align: center; }
-        .profile-body { padding: 25px; line-height: 1.8; }
-        .tag { background: rgba(197,160,89,0.2); color: #997b3d; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid var(--sf-gold); }
+        /* --- 師資陣容網格 (對標台大) --- */
+        .faculty-container { max-width: 1400px; margin: 50px auto; padding: 0 20px; }
+        .faculty-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+        .faculty-card { background: var(--sf-panel); border: 1px solid var(--sf-border); border-radius: 8px; padding: 30px; transition: 0.3s; position: relative; overflow: hidden; }
+        .faculty-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--sf-cyan); transition: 0.3s; }
+        .faculty-card:hover { transform: translateY(-5px); border-color: var(--sf-cyan); box-shadow: 0 10px 30px rgba(0, 240, 255, 0.1); }
+        .faculty-card:hover::before { width: 100%; opacity: 0.05; }
+        .f-name { font-size: 1.6rem; color: var(--sf-light); margin: 0 0 5px 0; }
+        .f-title { font-size: 0.9rem; color: var(--sf-gold); font-family: 'Share Tech Mono'; margin-bottom: 15px; }
+        .f-exp { font-size: 0.9rem; color: #888; margin-bottom: 15px; line-height: 1.5; }
+        .f-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .f-tag { background: rgba(255,255,255,0.05); border: 1px solid #444; color: var(--sf-text); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; }
+        .f-btn { background: #1f2937; color: #fff; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; width: 100%; }
+        .f-btn:hover { background: var(--sf-cyan); color: #000; font-weight: bold; }
 
-        /* 歡迎首頁設計 */
-        .hero { text-align: center; padding: 80px 0; }
-        .hero h1 { font-size: 3rem; color: var(--sf-blue); margin-bottom: 20px; }
-        .hero p { font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto; line-height: 1.8; }
+        /* --- 以下保留原本的招生、新聞、核心 CSS --- */
+        .admissions-banner { background: repeating-linear-gradient(45deg, #111, #111 20px, #1a1a1a 20px, #1a1a1a 40px); padding: 50px 20px; text-align: center; border-bottom: 2px solid var(--sf-border); }
+        .admissions-title { font-size: 3rem; font-weight: 900; color: var(--sf-light); margin-bottom: 10px; }
+        .admissions-subtitle { color: var(--sf-cyan); font-size: 1.2rem; font-weight: bold; margin-bottom: 30px; }
+        .admission-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 1200px; margin: 0 auto; }
+        .btn-adm { background: var(--sf-panel); border: 1px solid var(--sf-gold); color: var(--sf-gold); padding: 12px 25px; font-size: 1.1rem; font-weight: bold; border-radius: 30px; cursor: pointer; transition: 0.3s; }
+        .btn-adm:hover { background: var(--sf-gold); color: #000; transform: translateY(-3px); }
+        
+        .news-section { max-width: 1200px; margin: 50px auto; padding: 0 20px; }
+        .news-list { background: var(--sf-panel); border: 1px solid var(--sf-border); border-radius: 8px; padding: 20px; }
+        .news-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--sf-border); cursor: pointer; transition: 0.2s; }
+        .news-item:hover { background: rgba(0, 240, 255, 0.05); }
+        .news-date { font-family: 'Share Tech Mono'; color: var(--sf-gold); width: 120px; }
+        .news-tag { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: #fff; margin-right: 20px; min-width: 60px; text-align: center; }
+        .tag-blue { background: #1a73e8; } .tag-red { background: var(--sf-red); }
+        .news-title { flex: 1; color: var(--sf-light); }
+        
+        .core-section { max-width: 1400px; margin: 50px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 40px; }
+        .core-block { display: flex; background: var(--sf-panel); border: 1px solid var(--sf-border); border-radius: 12px; overflow: hidden; height: 300px; transition: 0.3s; }
+        .core-block:hover { border-color: var(--sf-cyan); }
+        .core-text { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        .core-circle { width: 120px; height: 120px; border: 2px solid var(--sf-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: var(--sf-light); margin-bottom: 20px; }
+        .core-list { list-style: none; padding: 0; margin: 0; line-height: 2; font-size: 1.1rem; }
+        .core-img { flex: 1; background-size: cover; background-position: center; position: relative; }
+        .ic-flow { font-family: 'Share Tech Mono'; color: var(--sf-gold); font-size: 1.1rem; margin: 15px 0; background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--sf-gold); }
 
-        footer { background: var(--sf-blue); color: #aaa; text-align: center; padding: 30px; font-size: 0.9rem; }
+        #toast { position: fixed; bottom: 30px; right: 30px; background: var(--sf-cyan); color: #000; padding: 15px 25px; border-radius: 4px; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 5px 15px rgba(0,240,255,0.4); }
+        footer { background: #05070a; border-top: 1px solid var(--sf-border); padding: 40px 20px; text-align: center; color: #666; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <div class="top-banner">
-        <div class="logo">
-            <div class="logo-icon">CSIE</div>
-            極元科技大學 資訊工程學系
+    <div id="toast">✅ 系統訊息</div>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo" onclick="switchView('view-home')"><span>CSIE</span> 極元科技大學 資訊工程系</div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a class="nav-link" onclick="switchView('view-home')">本系首頁</a></li>
+                <li class="nav-item">
+                    <a class="nav-link">系所成員 ▼</a>
+                    <div class="dropdown">
+                        <a onclick="switchView('view-chair')">👨‍💼 系主任 (Department Chair)</a>
+                        <a onclick="switchView('view-faculty')">🎓 師資陣容 (Faculty Members)</a>
+                        <a onclick="action('載入系辦成員分機表')">🏢 系辦公室成員</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="nav-link" onclick="action('開啟 128 學分必修地圖')">課程規劃</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="action('連結勞動部與勝發認證網')">技能認證</a></li>
+                <li class="nav-item"><a class="nav-link" style="color: var(--sf-gold);" onclick="action('進入報名系統')">招生訊息</a></li>
+            </ul>
         </div>
-        <div style="font-family: 'Share Tech Mono';">SHENGFA GROUP ACADEMIC NODE</div>
+    </header>
+
+    <div id="view-home" class="view-section active">
+        <section class="admissions-banner">
+            <div class="admissions-title">四技 技職多元入學熱烈招生中 ⋙</div>
+            <div class="admissions-subtitle">💡 宜、花、東、離島!! 聯招管道入學應屆大學新鮮人!! 獎助一年住宿!!</div>
+            <div class="admission-buttons">
+                <button class="btn-adm" onclick="action('繁星計畫 申請')">繁星計畫</button>
+                <button class="btn-adm" onclick="action('運動單招 申請')">運動單招</button>
+                <button class="btn-adm" onclick="action('技優甄審 申請')">技優甄審</button>
+                <button class="btn-adm" onclick="action('甄選入學 申請')">甄選入學</button>
+                <button class="btn-adm" onclick="action('登記分發 申請')">登記分發</button>
+                <button class="btn-adm" onclick="action('日間獨招 申請')">日間獨招</button>
+                <button class="btn-adm" onclick="action('進修部獨招 申請')">進四技獨招</button>
+            </div>
+        </section>
+
+        <section class="news-section">
+            <div style="border-bottom: 1px solid var(--sf-border); margin-bottom: 20px; padding-bottom: 10px; display: flex; gap: 30px; font-size: 1.2rem; font-weight: bold;">
+                <span style="color: var(--sf-cyan); border-bottom: 3px solid var(--sf-cyan); padding-bottom: 10px;">最新消息</span>
+                <span style="color: #666; cursor: pointer;" onclick="action('切換至活動訊息')">活動訊息</span>
+            </div>
+            <div class="news-list">
+                <div class="news-item" onclick="action('開啟 第十三屆崇友實業獎學金')">
+                    <div class="news-date">2026/02/23</div><div class="news-tag tag-blue">獎學金</div><div class="news-title">2026第十三屆崇友實業獎學金，申請至3月20日止</div>
+                </div>
+                <div class="news-item" onclick="action('開啟 114學年度行事曆')">
+                    <div class="news-date">2026/02/09</div><div class="news-tag tag-blue">公告</div><div class="news-title">【行事曆】114學年度第二學期行事曆（中文版）</div>
+                </div>
+                <div class="news-item" onclick="action('開啟 智能玩家體驗營回饋')">
+                    <div class="news-date">2026/02/03</div><div class="news-tag tag-blue">公告</div><div class="news-title">【問卷回饋】2026/02/03 智能玩家達人秀體驗營</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="core-section">
+            <div class="core-block">
+                <div class="core-text">
+                    <div class="core-circle" style="border-color: #3b82f6;">發展重點</div>
+                    <ul class="core-list">
+                        <li style="color:var(--sf-cyan);">◆ AIoT技術應用、XR數位內容開發與平台建置</li>
+                        <li style="color:var(--sf-cyan);">◆ 生成式AI應用技術</li>
+                        <li style="color:var(--sf-cyan);">◆ 資安攻防技術</li>
+                        <li style="color:var(--sf-cyan);">◆ 資訊安全管理系統(ISMS)</li>
+                    </ul>
+                </div>
+                <div class="core-img" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80');"></div>
+            </div>
+            <div class="core-block">
+                <div class="core-text">
+                    <div class="core-circle" style="border-color: #fca5a5;">AI‧XR‧資安</div>
+                    <div style="color: var(--sf-light); font-size: 1.1rem; font-weight: bold;">驅動台灣產業的核心力量：半導體 ➔ IC</div>
+                    <div class="ic-flow">◆ EDA ➔ IP ➔ IC Design ➔ IC Manufacturing ➔ IC Packaging & Testing</div>
+                    <div style="color: #aaa; line-height: 1.6;">培育數位/類比 IC 設計工程師、佈局工程師、軟體工程師、製程工程師、設備工程師。</div>
+                </div>
+                <div class="core-img" style="background-image: url('https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80');"></div>
+            </div>
+        </section>
     </div>
 
-    <nav>
-        <ul class="nav-list">
-            <li class="nav-item">
-                <a href="#" class="nav-link" onclick="switchView('home')">本系介紹</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">系所成員 ▼</a>
-                <ul class="dropdown-menu">
-                    <li class="dropdown-item" onclick="switchView('chair')">👨‍💼 系主任</li>
-                    <li class="dropdown-item" onclick="switchView('faculty')">🎓 師資介紹</li>
-                    <li class="dropdown-item" onclick="switchView('staff')">🏢 系辦成員</li>
-                </ul>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link" onclick="switchView('curriculum')">課程規劃</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link" onclick="alert('連結至勞動部技能檢定與勝發集團內部認證中心')">技能認證</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link" style="color: var(--sf-red);">招生訊息 (Admissions)</a>
-            </li>
-        </ul>
-    </nav>
-
-    <div class="content-area">
-        
-        <div id="view-home" class="section-view active">
-            <div class="hero">
-                <h1>定義未來的核心力量</h1>
-                <p>本系聚焦於 <strong>AIoT技術應用、XR數位內容開發</strong>，並具備 <strong>生成式AI應用技術</strong> 與 <strong>資安攻防技術 (ISMS)</strong>。我們是驅動台灣半導體產業 (IC Design / EDA) 的最強後盾，為勝發集團輸送最高階的數位架構工程師。</p>
-            </div>
+    <div id="view-chair" class="view-section">
+        <div class="page-header">
+            <h1>系主任 (Department Chair)</h1>
+            <p>引領全球頂尖資訊科學研究與勝發集團戰略接軌</p>
         </div>
-
-        <div id="view-chair" class="section-view">
-            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">系主任 (Department Chair)</h2>
-            <div class="profile-grid" style="grid-template-columns: 1fr; max-width: 800px; margin: 0 auto;">
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <h2 style="margin: 0; color: var(--sf-gold);">林子淵 博士 (Dr. Tzu-Yuan Lin)</h2>
-                        <div style="font-size: 0.9rem; margin-top: 5px; opacity: 0.8;">資訊工程學系 系主任 / 前勝發集團 量子密碼學首席研究員</div>
+        <div class="chair-container">
+            <div class="chair-card">
+                <div class="chair-photo"></div>
+                <div class="chair-info">
+                    <h2>洪士灝 博士 (Prof. Shih-Hao Hung)</h2>
+                    <h4>資工系 系主任 / 勝發集團 雲端架構總策劃</h4>
+                    <div class="chair-details">
+                        <p><strong>🎓 最高學歷：</strong>美國密西根大學 安娜堡分校 電腦科學工程學系 博士</p>
+                        <p><strong>🔬 研究專長：</strong>雲端運算 (Cloud Computing)、平行與分散式處理、計算機結構、系統效能評估。</p>
+                        <p><strong>📖 經歷：</strong><br>原任國立台灣大學 資訊工程學系 系主任。現受勝發集團以最高規格延攬，執掌極元科大資工系。主導設計勝發集團「全球分散式運算網」底層架構，推動全系課程與矽谷科技巨頭無縫接軌。</p>
+                        <p><strong>🗣️ 主任的話：</strong><br>「在大資工時代，頭腦思想是創新的來源，科技應用是無限的想像。在這裡，你不只是寫程式，你正在編寫人類未來的運行法則。」</p>
                     </div>
-                    <div class="profile-body">
-                        <p><strong>學歷：</strong>美國麻省理工學院 (MIT) 電機資訊博士</p>
-                        <p><strong>專長領域：</strong><span class="tag">後量子密碼學</span> <span class="tag">零知識證明 (ZKP)</span> <span class="tag">大數據探勘</span></p>
-                        <p><strong>主任的話：</strong>「在極元科大資工系，我們不只教你寫程式，我們教你如何編寫未來世界的運行法則。在勝發集團的全力奧援下，本系擁有全亞洲唯一的常溫量子電腦實驗室。歡迎各位天才加入我們。」</p>
-                        <hr style="border: 0; border-top: 1px dashed #ccc; margin: 20px 0;">
-                        <p><strong>聯絡方式：</strong>tylin@shengfa.global | 分機：3701</p>
-                    </div>
+                    <button class="btn-contact" onclick="action('發送機密郵件至 洪士灝主任 信箱')">✉️ 聯絡主任 (Email)</button>
+                    <button class="btn-contact" style="border-color:var(--sf-cyan); color:var(--sf-cyan);" onclick="action('開啟 雲端系統與效能評估實驗室 (CSPE Lab)')">💻 進入專屬實驗室</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="view-faculty" class="section-view">
-            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">師資介紹 (Faculty Members)</h2>
-            <div class="profile-grid">
-                <div class="profile-card">
-                    <div class="profile-header" style="background: var(--sf-red);">
-                        <h3 style="margin: 0;">王閔弘 博士</h3>
-                        <div style="font-size: 0.8rem; opacity: 0.9;">學術副校長 / 特聘講座教授</div>
+    <div id="view-faculty" class="view-section">
+        <div class="page-header">
+            <h1>師資陣容 (Faculty Members)</h1>
+            <p>集結前台大資工系核心陣容與勝發集團頂級科學家</p>
+        </div>
+        <div class="faculty-container">
+            <div class="faculty-grid">
+                
+                <div class="faculty-card" style="border-color: var(--sf-gold);">
+                    <h2 class="f-name">郭大維 博士</h2>
+                    <div class="f-title">極元科大 講座教授 / 前台大代理校長</div>
+                    <div class="f-tags">
+                        <span class="f-tag">嵌入式系統</span><span class="f-tag">即時系統</span><span class="f-tag">非揮發性記憶體</span>
                     </div>
-                    <div class="profile-body">
-                        <p><strong>專長：</strong><span class="tag">主動式資安防禦</span> <span class="tag">AI幻覺修正系統</span></p>
-                        <p style="color: #666; font-size: 0.9rem;">主導國家數位盾牌計畫與勝發集團 4500 億星際陣列專案。</p>
-                    </div>
+                    <div class="f-exp"><strong>學歷：</strong>美國德州大學奧斯汀分校 電腦科學博士<br>帶領勝發集團星際載具嵌入式系統之底層開發。</div>
+                    <button class="f-btn" onclick="action('查閱 郭大維教授 IEEE Fellow 論文集')">📚 查閱學術著作</button>
                 </div>
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <h3 style="margin: 0; color: var(--sf-gold);">陳柏宇 博士</h3>
-                        <div style="font-size: 0.8rem; opacity: 0.9;">專任教授 / 聯發科前高階主管</div>
+
+                <div class="faculty-card" style="border-color: var(--sf-red);">
+                    <h2 class="f-name" style="color: var(--sf-red);">王閔弘 博士</h2>
+                    <div class="f-title">學術副校長 / 特聘講座教授</div>
+                    <div class="f-tags">
+                        <span class="f-tag">主動式資安防禦</span><span class="f-tag">量子補償算法</span>
                     </div>
-                    <div class="profile-body">
-                        <p><strong>專長：</strong><span class="tag">IC Design (數位/類比)</span> <span class="tag">EDA 演算法</span></p>
-                        <p style="color: #666; font-size: 0.9rem;">負責半導體製程與晶片架構課程，銜接勝發硬體供應鏈。</p>
-                    </div>
+                    <div class="f-exp"><strong>學歷：</strong>哈佛大學 電機資訊雙博士<br>勝發集團最高戰略顧問，主導國家數位盾牌計畫。</div>
+                    <button class="f-btn" style="background:var(--sf-red);" onclick="action('申請進入 副校長機密實驗室')">🛡️ 申請實驗室權限</button>
                 </div>
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <h3 style="margin: 0; color: var(--sf-gold);">李欣儀 博士</h3>
-                        <div style="font-size: 0.8rem; opacity: 0.9;">專任副教授</div>
+
+                <div class="faculty-card">
+                    <h2 class="f-name">李宏毅 博士</h2>
+                    <div class="f-title">專任教授 / 知名 AI 學者</div>
+                    <div class="f-tags">
+                        <span class="f-tag">深度學習</span><span class="f-tag">語音處理</span><span class="f-tag">大型語言模型(LLM)</span>
                     </div>
-                    <div class="profile-body">
-                        <p><strong>專長：</strong><span class="tag">XR 數位雙生</span> <span class="tag">AIoT 邊緣運算</span></p>
-                        <p style="color: #666; font-size: 0.9rem;">建構與勝發 742 座廠區同步之虛擬宇宙平台。</p>
-                    </div>
+                    <div class="f-exp"><strong>學歷：</strong>國立台灣大學 電信工程博士<br>原台大名師，現負責建構勝發集團下一代通用人工智慧大腦。</div>
+                    <button class="f-btn" onclick="action('觀看 李宏毅教授 機器學習中文公開課')">▶️ 觀看 Machine Learning 公開課</button>
                 </div>
+
+                <div class="faculty-card">
+                    <h2 class="f-name">林軒田 博士</h2>
+                    <div class="f-title">特聘教授 / 首席資料科學家</div>
+                    <div class="f-tags">
+                        <span class="f-tag">機器學習基礎理論</span><span class="f-tag">資料探勘</span>
+                    </div>
+                    <div class="f-exp"><strong>學歷：</strong>加州理工學院 電腦科學博士<br>《Machine Learning Foundations》作者，優化集團全球金融清算網演算法。</div>
+                    <button class="f-btn" onclick="action('預約 林軒田教授 Office Hour')">📅 預約學術指導</button>
+                </div>
+
+                <div class="faculty-card">
+                    <h2 class="f-name">陳縕儂 博士</h2>
+                    <div class="f-title">專任副教授</div>
+                    <div class="f-tags">
+                        <span class="f-tag">自然語言處理 (NLP)</span><span class="f-tag">對話系統</span><span class="f-tag">機器智能</span>
+                    </div>
+                    <div class="f-exp"><strong>學歷：</strong>卡內基美隆大學(CMU) 電腦科學博士<br>微軟前科學家，現負責勝發集團全球智能客服與高階主管 AI 幕僚系統。</div>
+                    <button class="f-btn" onclick="action('進入 機器智能與理解實驗室 (MIULab)')">🔬 參觀 MIULab</button>
+                </div>
+
+                <div class="faculty-card">
+                    <h2 class="f-name">徐宏民 博士</h2>
+                    <div class="f-title">專任教授</div>
+                    <div class="f-tags">
+                        <span class="f-tag">電腦視覺</span><span class="f-tag">多媒體分析</span><span class="f-tag">影像檢索</span>
+                    </div>
+                    <div class="f-exp"><strong>學歷：</strong>美國哥倫比亞大學 電腦科學博士<br>研發全球 742 座廠區之 AI 安防與視覺監控系統。</div>
+                    <button class="f-btn" onclick="action('查閱 視覺監控系統 專案資料')">👁️ 查閱視覺 AI 專案</button>
+                </div>
+
             </div>
         </div>
-
-        <div id="view-staff" class="section-view">
-            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">系辦成員 (Department Staff)</h2>
-            <div class="profile-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <div class="profile-card">
-                    <div class="profile-body">
-                        <h3 style="color: var(--sf-blue); border-bottom: 2px solid #eee; padding-bottom: 10px;">張秘書 (資深行政專員)</h3>
-                        <p><strong>業務職掌：</strong></p>
-                        <ul>
-                            <li>日間部學士班/碩士班 課程規劃與選課異常處理</li>
-                            <li>勝發星際獎學金 (15萬/月) 初審收件</li>
-                            <li>勞動部與經濟部產業人才能力鑑定試務</li>
-                        </ul>
-                        <p><strong>分機：</strong>3702 | <strong>信箱：</strong>csie_admin@gcloud.csu.edu.tw</p>
-                    </div>
-                </div>
-                <div class="profile-card">
-                    <div class="profile-body">
-                        <h3 style="color: var(--sf-blue); border-bottom: 2px solid #eee; padding-bottom: 10px;">林技士 (系統與設備管理員)</h3>
-                        <p><strong>業務職掌：</strong></p>
-                        <ul>
-                            <li>AIoT 實驗室與 XR 數位雙生設備維護</li>
-                            <li>常溫量子電腦機房 門禁權限與溫控管理</li>
-                            <li>系網伺服器與資訊安全管理系統 (ISMS) 維運</li>
-                        </ul>
-                        <p><strong>分機：</strong>3703 | <strong>信箱：</strong>csie_it@gcloud.csu.edu.tw</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-curriculum" class="section-view">
-            <h2 style="color: var(--sf-blue); border-left: 5px solid var(--sf-gold); padding-left: 15px;">課程規劃 (Curriculum)</h2>
-            <div class="profile-card" style="padding: 30px;">
-                <h3 style="color: var(--sf-red);">驅動台灣產業的核心力量：半導體 ➔ IC</h3>
-                <p>本系課程緊密結合產業脈動，涵蓋：</p>
-                <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; font-family: 'Share Tech Mono'; margin: 20px 0;">
-                    EDA ➔ IP ➔ IC Design ➔ IC Manufacturing ➔ IC Packaging & Testing
-                </div>
-                <p><strong>🎓 專業培育方向：</strong><br>數位 IC 設計工程師、類比 IC 設計工程師、佈局工程師、軟體工程師、製程工程師、設備工程師、測試工程師、品管工程師。</p>
-            </div>
-        </div>
-
     </div>
 
     <footer>
-        辦公室：綜合行政大樓(03) 6樓 資訊工程系 | 地址：極元市 勝發科研大道 840 號<br>
-        TEL：07-7358800 ext.3702、3703 | 專屬信箱：csie@shengfa.global<br>
-        &copy; 2026 極元科技大學 資訊工程學系 All Rights Reserved.
+        <div style="font-weight: bold; color: var(--sf-light); margin-bottom: 10px;">極元科技大學 資訊工程系 (對接勝發集團核心)</div>
+        <div>地址：833 高雄市鳥松區澄清路840號 | 電話：07-7358800 ext.3702</div>
+        <div style="margin-top: 10px;">&copy; 2026 Jiyuan / Cheng Shiu University All Rights Reserved.</div>
     </footer>
 
     <script>
-        // SPA 單頁切換邏輯
+        // SPA 視圖切換邏輯
         function switchView(viewId) {
             // 隱藏所有區塊
-            const views = document.querySelectorAll('.section-view');
-            views.forEach(view => {
+            document.querySelectorAll('.view-section').forEach(view => {
                 view.classList.remove('active');
             });
-            
             // 顯示目標區塊
-            const targetView = document.getElementById('view-' + viewId);
-            if(targetView) {
-                targetView.classList.add('active');
-            }
+            const target = document.getElementById(viewId);
+            if(target) target.classList.add('active');
+            
+            // 回到頁面頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 全局互動提示系統 (取代舊的 Alert)
+        function action(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = `⚙️ 系統執行：${message}`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
     </script>
 </body>

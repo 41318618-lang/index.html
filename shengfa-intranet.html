@@ -2,282 +2,386 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Shengfa Group | 總指揮部最高終端</title>
+    <title>Shengfa ERP | 全球企業資源與校務整合系統 (Ultra版)</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
         
-        :root { --sf-gold: #c5a059; --sf-red: #cc0000; --sf-bg: #050505; --sf-panel: #0f0f13; --sf-text: #e0e0e0; --sf-cyan: #00f0ff; }
-        body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background: var(--sf-bg); color: var(--sf-text); overflow: hidden; height: 100vh; }
+        :root { 
+            --gold: #c5a059; --red: #8c1515; --dark-bg: #0d1117; --panel: #161b22; 
+            --border: #30363d; --text-main: #c9d1d9; --text-muted: #8b949e; 
+            --success: #238636; --danger: #da3633; --focus: #58a6ff;
+        }
+        body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background: var(--dark-bg); color: var(--text-main); overflow: hidden; font-size: 14px; }
         
-        /* 登入遮罩系統 */
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1a0505 0%, #000000 100%); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .login-box { background: rgba(15,15,19,0.9); border: 1px solid var(--sf-red); padding: 50px; border-radius: 5px; box-shadow: 0 0 30px rgba(204,0,0,0.3); text-align: center; width: 400px; position: relative; }
-        .login-box::before { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; background: linear-gradient(45deg, var(--sf-red), transparent, var(--sf-gold)); z-index: -1; filter: blur(10px); opacity: 0.5; animation: pulseGlow 3s infinite; }
-        .login-box h1 { font-family: 'Share Tech Mono', monospace; color: var(--sf-gold); font-size: 2rem; margin-top: 0; letter-spacing: 2px; }
-        .login-input { width: 100%; padding: 15px; margin: 15px 0; background: #000; border: 1px solid #333; color: var(--sf-cyan); font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; box-sizing: border-box; text-align: center; letter-spacing: 2px; }
-        .login-input:focus { outline: none; border-color: var(--sf-red); box-shadow: 0 0 10px rgba(204,0,0,0.5); }
-        .login-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--sf-red); color: var(--sf-red); font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; letter-spacing: 2px; text-transform: uppercase; }
-        .login-btn:hover { background: var(--sf-red); color: #fff; box-shadow: 0 0 20px var(--sf-red); }
-        #login-error { color: var(--sf-gold); font-family: 'Share Tech Mono', monospace; margin-top: 15px; display: none; }
+        /* 頂部導航列 */
+        .topbar { height: 50px; background: #010409; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 100; position: relative; }
+        .logo-area { display: flex; align-items: center; gap: 15px; font-weight: 900; font-size: 1.2rem; color: #fff; letter-spacing: 1px; }
+        .logo-area span { color: var(--gold); }
+        .top-search { background: var(--dark-bg); border: 1px solid var(--border); color: var(--text-main); padding: 5px 15px; border-radius: 4px; width: 300px; outline: none; transition: 0.3s; }
+        .top-search:focus { border-color: var(--focus); width: 400px; }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 30px; height: 30px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+        
+        /* 佈局容器 */
+        .layout { display: flex; height: calc(100vh - 50px); }
+        
+        /* 左側 ERP 模組選單 */
+        .sidebar { width: 240px; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+        .nav-group { padding: 15px 0 5px 20px; color: var(--text-muted); font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        .nav-item { padding: 10px 20px 10px 30px; color: var(--text-main); text-decoration: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border-left: 3px solid transparent; }
+        .nav-item:hover, .nav-item.active { background: rgba(197,160,89,0.1); color: #fff; border-left-color: var(--gold); }
+        .badge { background: var(--danger); color: #fff; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; }
+        
+        /* 工作區 */
+        .workspace { flex: 1; padding: 25px; overflow-y: auto; background: var(--dark-bg); position: relative; }
+        .module-section { display: none; animation: fadeIn 0.3s; }
+        .module-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 面板與卡片 */
+        .header-title { font-size: 1.5rem; color: #fff; margin: 0 0 20px 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .grid-row { display: grid; gap: 20px; margin-bottom: 20px; }
+        .col-2 { grid-template-columns: 1fr 1fr; }
+        .col-3 { grid-template-columns: repeat(3, 1fr); }
+        .col-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+        .card-header { font-weight: bold; color: #fff; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 表格與表單 */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { color: var(--text-muted); background: rgba(0,0,0,0.2); }
+        tr:hover { background: rgba(255,255,255,0.02); cursor: pointer; }
+        
+        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 0.85rem; }
+        .btn-primary { background: var(--gold); color: #000; }
+        .btn-primary:hover { background: #dfb668; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--text-main); color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        
+        .status-tag { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .status-pending { background: rgba(218, 54, 51, 0.2); color: #ff7b72; border: 1px solid rgba(218,54,51,0.5); }
+        .status-approved { background: rgba(35, 134, 54, 0.2); color: #3fb950; border: 1px solid rgba(35,134,54,0.5); }
+        
+        /* 打卡與進度條 */
+        .punch-panel { text-align: center; padding: 30px; border: 1px dashed var(--border); border-radius: 6px; }
+        .clock-display { font-size: 3rem; font-family: 'Courier New', monospace; color: var(--gold); margin: 20px 0; font-weight: bold; text-shadow: 0 0 10px rgba(197,160,89,0.3); }
+        
+        .progress-wrapper { background: var(--dark-bg); border-radius: 10px; height: 10px; overflow: hidden; margin-top: 8px; border: 1px solid var(--border); }
+        .progress-bar { height: 100%; background: var(--focus); }
 
-        /* 內網主系統 (預設隱藏) */
-        #dashboard { display: none; height: 100vh; display: flex; flex-direction: column; opacity: 0; transition: opacity 2s ease-in; }
+        /* 全局 Toast 提示 */
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 15px 25px; border-radius: 4px; font-weight: bold; font-size: 1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: none; z-index: 9999; }
         
-        /* 頂部控制列 */
-        header { background: #0a0a0d; border-bottom: 2px solid var(--sf-red); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .brand { font-family: 'Share Tech Mono', monospace; font-size: 1.8rem; color: var(--sf-gold); display: flex; align-items: center; gap: 15px; }
-        .blink-dot { width: 12px; height: 12px; background: var(--sf-red); border-radius: 50%; box-shadow: 0 0 10px var(--sf-red); animation: blink 1s infinite; }
-        .user-profile { font-family: 'Share Tech Mono', monospace; color: var(--sf-cyan); text-align: right; }
-        
-        /* 網格佈局 */
-        .main-grid { display: grid; grid-template-columns: 250px 1fr 350px; height: calc(100vh - 70px); }
-        
-        /* 左側導覽 */
-        .sidebar { background: #0a0a0d; border-right: 1px solid #222; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .nav-btn { background: transparent; border: 1px solid #333; color: #888; padding: 15px; text-align: left; font-family: 'Share Tech Mono', monospace; font-size: 1rem; cursor: pointer; transition: 0.3s; }
-        .nav-btn:hover, .nav-btn.active { border-color: var(--sf-gold); color: var(--sf-gold); background: rgba(197,160,89,0.1); padding-left: 25px; }
-
-        /* 中央監控區 */
-        .center-panel { padding: 30px; overflow-y: auto; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        .h2-title { font-family: 'Share Tech Mono', monospace; color: var(--sf-text); border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; margin-top: 0; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 25px; text-align: center; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        .stat-value { font-family: 'Share Tech Mono', monospace; font-size: 2.5rem; color: var(--sf-cyan); margin: 10px 0; text-shadow: 0 0 10px var(--sf-cyan); }
-        .stat-label { color: #888; font-size: 0.9rem; letter-spacing: 1px; }
-
-        /* 終端機模擬器 */
-        .terminal { background: #000; border: 1px solid #333; padding: 20px; font-family: 'Share Tech Mono', monospace; color: #0f0; height: 250px; overflow-y: auto; border-radius: 4px; box-shadow: inset 0 0 15px rgba(0,255,0,0.1); margin-bottom: 30px; }
-        .terminal p { margin: 5px 0; }
-        
-        /* 亞洲樞紐/全球分佈 */
-        .global-map { background: rgba(255,255,255,0.02); border: 1px solid #222; padding: 20px; border-radius: 4px; }
-        .progress-row { margin-bottom: 15px; }
-        .p-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-family: 'Share Tech Mono', monospace; color: #aaa; }
-        .p-bar-bg { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; }
-        .p-bar-fill { height: 100%; background: var(--sf-gold); box-shadow: 0 0 10px var(--sf-gold); }
-
-        /* 右側控制台 (核心互動區) */
-        .control-panel { background: #0a0a0d; border-left: 1px solid #222; padding: 20px; }
-        .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #222; margin-bottom: 15px; background: #000; border-radius: 4px; }
-        .switch-label { font-family: 'Share Tech Mono', monospace; color: #ccc; }
-        
-        /* 擬真切換開關 */
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--sf-red); box-shadow: 0 0 10px var(--sf-red); }
-        input:checked + .slider:before { transform: translateX(26px); }
-
-        /* 系統提示 Toast */
-        #sys-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--sf-red); color: white; padding: 15px 40px; font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; font-weight: bold; border-radius: 4px; box-shadow: 0 0 20px var(--sf-red); transition: 0.3s; z-index: 10000; border: 1px solid #fff; }
-
-        @keyframes pulseGlow { 0% { opacity: 0.3; } 50% { opacity: 0.6; } 100% { opacity: 0.3; } }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        /* 簽核 Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-body { background: var(--panel); width: 600px; border-radius: 6px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: bold; font-size: 1.1rem; color: #fff; display: flex; justify-content: space-between; }
+        .modal-content { padding: 20px; line-height: 1.6; }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border); background: #010409; display: flex; justify-content: flex-end; gap: 10px; }
+        .pwd-input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 4px; margin-bottom: 15px; }
     </style>
 </head>
-<body>
+<body onload="startClock()">
 
-    <div id="sys-toast">⚠️ 指令已覆寫執行</div>
+    <div id="toast">✅ 系統操作成功</div>
 
-    <div id="login-overlay">
-        <div class="login-box">
-            <h1>SHENGFA_OS v9.4</h1>
-            <p style="color: #666; font-family: 'Share Tech Mono', monospace; margin-bottom: 30px;">[ RESTRICTED ACCESS : LEVEL 5 REQUIRED ]</p>
-            <input type="text" id="loginId" class="login-input" placeholder="AUTHORIZATION ID">
-            <input type="password" id="loginPwd" class="login-input" placeholder="SECURITY KEY">
-            <button class="login-btn" onclick="executeLogin()">Initiate Uplink</button>
-            <div id="login-error">ACCESS DENIED : INVALID CREDENTIALS</div>
+    <header class="topbar">
+        <div class="logo-area">
+            Shengfa<span>ERP</span>
+            <span style="font-size: 0.8rem; color: #666; font-weight: normal; border-left: 1px solid #333; padding-left: 15px;">勝發全球企業資源規劃系統 v12.4</span>
         </div>
+        <input type="text" class="top-search" placeholder="🔍 搜尋員工、公文代號、設備編號、預算科目...">
+        <div class="user-profile">
+            <span style="color: var(--text-muted); font-size: 0.85rem;">目前登入：</span>
+            <span style="font-weight: bold; color: #fff;">王閔弘 副校長 (VP-001)</span>
+            <div class="avatar">王</div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="nav-group">核心看板 Dashboard</div>
+            <div class="nav-item active" onclick="openModule('mod-dashboard', this)">📊 戰情中心 (BI)</div>
+            
+            <div class="nav-group">辦公自動化 (OA & BPM)</div>
+            <div class="nav-item" onclick="openModule('mod-attendance', this)">⏱️ 個人出勤與打卡</div>
+            <div class="nav-item" onclick="openModule('mod-bpm', this)">✅ 電子公文與簽核 <span class="badge" id="nav-bpm-badge">4</span></div>
+            <div class="nav-item" onclick="openModule('mod-facility', this)">🏢 會議室與派車系統</div>
+            
+            <div class="nav-group">企業資源規劃 (ERP Modules)</div>
+            <div class="nav-item" onclick="openModule('mod-fico', this)">💼 財務與預算 (FICO)</div>
+            <div class="nav-item" onclick="openModule('mod-scm', this)">📦 採購與供應鏈 (SCM)</div>
+            <div class="nav-item" onclick="openModule('mod-hcm', this)">🧑‍🤝‍🧑 人力資源 (HCM)</div>
+            <div class="nav-item" onclick="openModule('mod-ppm', this)">🚀 專案組合管理 (PPM)</div>
+            
+            <div style="flex-grow: 1;"></div>
+            <div class="nav-item" style="border-top: 1px solid var(--border); color: var(--danger);" onclick="location.href='index.html'">🚪 安全登出系統</div>
+        </nav>
+
+        <main class="workspace">
+
+            <section id="mod-dashboard" class="module-section active">
+                <div class="header-title">
+                    <span>📊 集團戰略與校務戰情中心 (Business Intelligence)</span>
+                    <button class="btn btn-outline">匯出 PDF 報告</button>
+                </div>
+                
+                <div class="grid-row col-4">
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">集團可用現金流 (NTD)</div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #fff; margin: 10px 0;">971 兆</div>
+                        <div style="font-size: 0.75rem; color: var(--success);">▲ 較上季增長 2.4%</div>
+                    </div>
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">全球在職員工總數</div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #fff; margin: 10px 0;">17,390,000</div>
+                        <div style="font-size: 0.75rem; color: var(--focus);">極元科大教職員：4,200</div>
+                    </div>
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">待處理簽核件 (BPM)</div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--danger); margin: 10px 0;" id="dash-bpm-count">4</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">包含 1 件急件</div>
+                    </div>
+                    <div class="card">
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">伺服器防禦狀態</div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--success); margin: 10px 0;">LEVEL MAX</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">亞原子防護罩已開啟</div>
+                    </div>
+                </div>
+
+                <div class="grid-row col-2">
+                    <div class="card">
+                        <div class="card-header">重大專案預算執行率 (PPM & FICO)</div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span>第七代星際通訊陣列 (預算: 4500億)</span><span>78%</span></div>
+                            <div class="progress-wrapper"><div class="progress-bar" style="width: 78%;"></div></div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span>國家數位防禦盾牌 (預算: 650億)</span><span>42%</span></div>
+                            <div class="progress-wrapper"><div class="progress-bar" style="width: 42%; background: var(--gold);"></div></div>
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span>全球金融清算網加密防禦 (預算: 32億)</span><span>95%</span></div>
+                            <div class="progress-wrapper"><div class="progress-bar" style="width: 95%; background: var(--success);"></div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">今日高階主管行程 (Calendar)</div>
+                        <table style="border: none;">
+                            <tr><td style="border:none; padding: 5px 0;"><span class="badge" style="background:var(--focus);">09:00</span></td><td style="border:none;">與張家綺營運長確認預算核撥</td></tr>
+                            <tr><td style="border:none; padding: 5px 0;"><span class="badge" style="background:var(--danger);">13:30</span></td><td style="border:none;">【機密】國防部數位盾牌驗收會議</td></tr>
+                            <tr><td style="border:none; padding: 5px 0;"><span class="badge" style="background:var(--gold); color:#000;">15:00</span></td><td style="border:none;">面試前 MIT 實驗室主任 (客座教授案)</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="mod-attendance" class="module-section">
+                <div class="header-title"><span>⏱️ 個人出勤與打卡 (Time & Attendance)</span></div>
+                <div class="grid-row col-2">
+                    <div class="card punch-panel">
+                        <div style="color: var(--text-muted); font-weight: bold;">目前系統時間 (Shengfa NTP Server)</div>
+                        <div class="clock-display" id="erp-clock">00:00:00</div>
+                        <div style="color: #fff; margin-bottom: 25px;">📍 IP 定位：192.168.SF.01 (極元科大 核心辦公區)</div>
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button class="btn btn-success" style="padding: 15px 30px; font-size: 1.1rem;" onclick="doPunch('上班')">上班簽到 (Clock-In)</button>
+                            <button class="btn btn-danger" style="padding: 15px 30px; font-size: 1.1rem;" onclick="doPunch('下班')">下班簽退 (Clock-Out)</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">特休與假單餘額 (Leave Balances)</div>
+                        <table style="margin-top: 10px;">
+                            <tr><th>假別</th><th>總額度</th><th>已休</th><th>剩餘 (天)</th><th>操作</th></tr>
+                            <tr><td>高階主管特休</td><td>30</td><td>5</td><td style="color:var(--success); font-weight:bold;">25</td><td><button class="btn btn-primary">請假</button></td></tr>
+                            <tr><td>公假/出差</td><td>無上限</td><td>12</td><td>-</td><td><button class="btn btn-primary">申請</button></td></tr>
+                            <tr><td>全薪病假</td><td>30</td><td>0</td><td style="color:var(--success); font-weight:bold;">30</td><td><button class="btn btn-primary">請假</button></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="mod-bpm" class="module-section">
+                <div class="header-title">
+                    <span>✅ 電子公文與簽核 (BPM - Business Process Management)</span>
+                    <button class="btn btn-primary" onclick="alert('已將畫面中勾選的公文批次核准！')">批次核准 (Batch Approve)</button>
+                </div>
+                <div class="card" style="padding: 0;">
+                    <table>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox"></th>
+                            <th>單號</th><th>表單類型</th><th>申請單位/人員</th><th>主旨/內容</th><th>送簽時間</th><th>狀態</th><th>操作</th>
+                        </tr>
+                        <tr id="bpm-row-1">
+                            <td><input type="checkbox"></td>
+                            <td>PR-202602-091</td><td>請購單 (PR)</td><td>電資學院 / 趙鼎盛</td>
+                            <td style="color: #fff; font-weight: bold;">量子伺服器陣列採購 (預算: 250億)</td>
+                            <td>今天 09:12</td>
+                            <td><span class="status-tag status-pending">待副校長核准</span></td>
+                            <td><button class="btn btn-outline" onclick="openApprovalModal('bpm-row-1', 'PR-202602-091', '請購單 - 量子伺服器陣列採購', '總金額：NT$ 25,000,000,000\n請購原因：第七代星際通訊陣列第二階段擴建需求。已通過總務處規格審查。')">開啟審核</button></td>
+                        </tr>
+                        <tr id="bpm-row-2">
+                            <td><input type="checkbox"></td>
+                            <td>HR-202602-112</td><td>人事任用單</td><td>教務處 / 陳學儒</td>
+                            <td style="color: #fff; font-weight: bold;">客座教授聘任核薪 (前 MIT 實驗室主任)</td>
+                            <td>昨天 16:40</td>
+                            <td><span class="status-tag status-pending">待副校長核准</span></td>
+                            <td><button class="btn btn-outline" onclick="openApprovalModal('bpm-row-2', 'HR-202602-112', '人事任用 - 客座教授', '擬核定年薪：USD$ 5,000,000\n經費來源：勝發星際專案基金。請副校長裁示。')">開啟審核</button></td>
+                        </tr>
+                        <tr id="bpm-row-3">
+                            <td><input type="checkbox"></td>
+                            <td>EXP-202602-005</td><td>費用報銷單</td><td>學務處 / 林育才</td>
+                            <td style="color: #fff; font-weight: bold;">勝發星際獎學金 本月撥款清冊</td>
+                            <td>昨天 14:20</td>
+                            <td><span class="status-tag status-pending">待副校長覆核</span></td>
+                            <td><button class="btn btn-outline" onclick="openApprovalModal('bpm-row-3', 'EXP-202602-005', '費用報銷 - 獎學金撥款', '撥款總額：NT$ 45,000,000\n共計 300 名菁英學生，每人 15 萬津貼。')">開啟審核</button></td>
+                        </tr>
+                        <tr id="bpm-row-4">
+                            <td><input type="checkbox"></td>
+                            <td>DOC-202602-998</td><td>對外發文稿</td><td>國防部 (密件收發)</td>
+                            <td style="color: var(--gold); font-weight: bold;">【機密】國家數位盾牌原始碼移交協議</td>
+                            <td>2026-02-24</td>
+                            <td><span class="status-tag status-pending">待數位簽章</span></td>
+                            <td><button class="btn btn-outline" style="border-color: var(--gold); color: var(--gold);" onclick="openApprovalModal('bpm-row-4', 'DOC-202602-998', '【機密合約】國家數位盾牌授權', '國防部已用印完成，懇請王副校長使用 Level 5 金鑰進行最後數位簽署，開通權限。')">開啟機密審核</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <section id="mod-facility" class="module-section">
+                <div class="header-title"><span>🏢 會議室與派車系統 (Facility & Asset Management)</span></div>
+                <div class="grid-row col-2">
+                    <div class="card">
+                        <div class="card-header">空間與實驗室預約 (Room Booking)</div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label style="display:block; margin-bottom: 5px;">選擇場地：</label>
+                            <select style="width:100%; padding:10px; background:#000; border:1px solid var(--border); color:#fff; border-radius:4px;">
+                                <option>極元科大 亞原子全息投影會議室 (A棟 7F)</option>
+                                <option>常溫量子電腦實驗主控區</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" style="width:100%;" onclick="showToast('會議室預約成功。已自動發送行事曆邀請給相關與會者。')">確認預約</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">勝發集團 高階主管派車系統 (Fleet Dispatch)</div>
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label style="display:block; margin-bottom: 5px;">選擇載具級別：</label>
+                            <select style="width:100%; padding:10px; background:#000; border:1px solid var(--border); color:#fff; border-radius:4px;">
+                                <option>集團黑頭防彈轎車 (市區會議用)</option>
+                                <option>勝發專屬私人直升機 (前往集團各超級廠區)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline" style="width:100%; border-color:var(--gold); color:var(--gold);" onclick="showToast('🚁 派車指令已送出。直升機將於 15 分鐘後抵達行政大樓頂樓停機坪。')">申請緊急派發載具</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="mod-fico" class="module-section"><div class="header-title"><span>💼 財務與預算中心 (FICO)</span></div><div class="card">系統權限驗證中... 獲取 971 兆資金池詳細報表。</div></section>
+            <section id="mod-scm" class="module-section"><div class="header-title"><span>📦 採購與供應鏈 (SCM)</span></div><div class="card">連線勝發集團全球 742 座廠區供應商名冊與採購單 (PO) 系統...</div></section>
+            <section id="mod-hcm" class="module-section"><div class="header-title"><span>🧑‍🤝‍🧑 人力資源系統 (HCM)</span></div><div class="card">全球 1739 萬名員工組織圖與極元科大教職員薪資清冊載入中...</div></section>
+            <section id="mod-ppm" class="module-section"><div class="header-title"><span>🚀 專案組合管理 (PPM)</span></div><div class="card">第七代星際通訊陣列 WBS (工作分解結構) 與甘特圖渲染中...</div></section>
+
+        </main>
     </div>
 
-    <div id="dashboard" style="display:none;">
-        <header>
-            <div class="brand">
-                <div class="blink-dot"></div>
-                SHENGFA GLOBAL COMMAND
+    <div id="bpm-modal" class="modal">
+        <div class="modal-body">
+            <div class="modal-header">
+                <span id="bpm-modal-title">單據審核</span>
+                <span style="cursor: pointer; color: var(--text-muted);" onclick="closeBpmModal()">&times;</span>
             </div>
-            <div class="user-profile">
-                <div>LOGGED IN: <span style="color: #fff;">WANG MIN-HONG (VP-001)</span></div>
-                <div style="font-size: 0.8rem; color: #888;">CLEARANCE: OMEGA MAX</div>
+            <div class="modal-content">
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 4px; border: 1px solid var(--border); margin-bottom: 20px;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">單號：<span id="bpm-modal-id">---</span></div>
+                    <pre id="bpm-modal-desc" style="white-space: pre-wrap; font-family: inherit; margin: 0; color: #fff; line-height: 1.5;"></pre>
+                </div>
+                <label style="display:block; margin-bottom: 8px; font-weight: bold; color: var(--gold);">🔐 電子憑證密碼 (Level 5 授權)</label>
+                <input type="password" class="pwd-input" id="bpm-pin" placeholder="請輸入簽核金鑰 (預設: 123)">
+                <label style="display:block; margin-bottom: 8px;">簽核意見 (選填)</label>
+                <input type="text" class="pwd-input" placeholder="例如：同意，請總務處加速辦理。">
             </div>
-        </header>
-
-        <div class="main-grid">
-            <div class="sidebar">
-                <button class="nav-btn active">>&nbsp;GLOBAL_OVERVIEW</button>
-                <button class="nav-btn" onclick="sysMsg('連線至全球金融清算網...')">>&nbsp;FINANCIAL_NEXUS</button>
-                <button class="nav-btn" onclick="sysMsg('連線至極元科大 亞原子實驗室...')">>&nbsp;SUB_ATOMIC_LAB</button>
-                <button class="nav-btn" onclick="sysMsg('開啟行星級大氣工程參數...')">>&nbsp;ATMOSPHERE_CTRL</button>
-                <div style="flex-grow: 1;"></div>
-                <button class="nav-btn" style="border-color: var(--sf-red); color: var(--sf-red);" onclick="location.href='index.html'">>&nbsp;DISCONNECT_&_EXIT</button>
-            </div>
-
-            <div class="center-panel">
-                <h2 class="h2-title">IMPERIAL METRICS (帝國實時數據)</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">MARKET CAP (NTD)</div>
-                        <div class="stat-value">1,576 T</div>
-                        <div style="color: #0f0; font-size: 0.8rem;">▲ +0.4% TODAY (CODE:7352)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">CASH RESERVES (NTD)</div>
-                        <div class="stat-value">971 T</div>
-                        <div style="color: #888; font-size: 0.8rem;">SECURED IN 12 QUANTUM VAULTS</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">GLOBAL WORKFORCE</div>
-                        <div class="stat-value">17.39 M</div>
-                        <div style="color: var(--sf-gold); font-size: 0.8rem;">TAIWAN CORE: 571,000 ACTIVE</div>
-                    </div>
-                </div>
-
-                <div class="global-map">
-                    <h2 class="h2-title" style="border: none;">GLOBAL 742 HUB DEPLOYMENT (全球廠區分配)</h2>
-                    
-                    <div class="progress-row">
-                        <div class="p-label"><span>ASIA (半導體量產/消費電子)</span><span>330 HUBS / 45%</span></div>
-                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 45%; background: var(--sf-cyan); box-shadow: 0 0 10px var(--sf-cyan);"></div></div>
-                    </div>
-                    <div class="progress-row">
-                        <div class="p-label"><span>AMERICAS (航太運輸/自駕醫療)</span><span>185 HUBS / 25%</span></div>
-                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 25%;"></div></div>
-                    </div>
-                    <div class="progress-row">
-                        <div class="p-label"><span>EUROPE (精密機械/核融能源)</span><span>120 HUBS / 20%</span></div>
-                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 20%;"></div></div>
-                    </div>
-                    <div class="progress-row">
-                        <div class="p-label"><span>AFRICA (特殊原物料/綠能基地)</span><span>60 HUBS / 7%</span></div>
-                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 7%;"></div></div>
-                    </div>
-                    <div class="progress-row">
-                        <div class="p-label"><span>OCEANIA (深海工程/星際通訊)</span><span>27 HUBS / 3%</span></div>
-                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 3%;"></div></div>
-                    </div>
-                    <div class="progress-row">
-                        <div class="p-label"><span style="color: var(--sf-red); font-weight: bold;">TAIWAN CORE (極元科大 亞原子/量子中樞)</span><span>20 MEGA-HUBS</span></div>
-                        <div class="p-bar-bg"><div class="p-bar-fill" style="width: 100%; background: var(--sf-red); box-shadow: 0 0 10px var(--sf-red);"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-panel">
-                <h2 class="h2-title">SYSTEM TERMINAL</h2>
-                <div class="terminal" id="term-output">
-                    <p>> SHENGFA MAINFRAME INITIALIZED...</p>
-                    <p>> SECURE CONNECTION ESTABLISHED.</p>
-                </div>
-
-                <h2 class="h2-title">OVERRIDE CONTROLS (權限覆寫)</h2>
-                
-                <div class="switch-row">
-                    <div class="switch-label">QUANTUM CORE COOLING<br><span style="font-size:0.7rem; color:#666;">常溫量子電腦冷卻系統</span></div>
-                    <label class="switch">
-                        <input type="checkbox" checked onchange="sysMsg(this.checked ? '量子冷卻系統：已啟動 (STABLE)' : '⚠️ 警告：量子冷卻系統已關閉，核心溫度上升中')">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="switch-row">
-                    <div class="switch-label">GLOBAL DEFENSE SHIELD<br><span style="font-size:0.7rem; color:#666;">極元科大/台灣主動式防禦盾牌</span></div>
-                    <label class="switch">
-                        <input type="checkbox" checked onchange="sysMsg(this.checked ? '國家數位盾牌：已上線防護' : '⚠️ 警告：數位防禦盾牌已降下')">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="switch-row">
-                    <div class="switch-label">SATELLITE ARRAY SYNC<br><span style="font-size:0.7rem; color:#666;">第七代星際通訊陣列連線</span></div>
-                    <label class="switch">
-                        <input type="checkbox" onchange="sysMsg(this.checked ? '星際陣列連線成功 (SIGNAL 100%)' : '星際陣列已斷開連接')">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                
-                <button class="login-btn" style="margin-top: 10px; font-size: 1rem; padding: 10px;" onclick="sysMsg('執行緊急協議... 王閔弘權限已確認。 撥款 990 億至極元科大帳戶。')">EXECUTE DIRECTIVE OMEGA</button>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeBpmModal()">取消</button>
+                <button class="btn btn-danger" onclick="executeApprove('reject')">退回重擬 (Reject)</button>
+                <button class="btn btn-success" onclick="executeApprove('approve')">核准並加蓋職章 (Approve)</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 登入邏輯
-        function executeLogin() {
-            const id = document.getElementById('loginId').value;
-            const pwd = document.getElementById('loginPwd').value;
-            const error = document.getElementById('login-error');
-            const overlay = document.getElementById('login-overlay');
-            const dashboard = document.getElementById('dashboard');
-
-            if (id === 'VP-001' && pwd === 'OMEGA') {
-                error.style.display = 'none';
-                document.querySelector('.login-btn').innerText = 'DECRYPTING...';
-                
-                // 模擬解密延遲
-                setTimeout(() => {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        dashboard.style.display = 'flex';
-                        // 觸發淡入效果
-                        setTimeout(() => { dashboard.style.opacity = '1'; }, 50);
-                        typeTerminal();
-                    }, 500);
-                }, 1500);
-            } else {
-                error.style.display = 'block';
-                document.getElementById('loginPwd').value = '';
-            }
+        // 切換側邊欄與模組
+        function openModule(moduleId, element) {
+            document.querySelectorAll('.module-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.getElementById(moduleId).classList.add('active');
+            element.classList.add('active');
         }
 
-        // 終端機打字效果
-        function typeTerminal() {
-            const term = document.getElementById('term-output');
-            const messages = [
-                "> AUTHENTICATING OMEGA CLEARANCE...",
-                "> CLEARANCE ACCEPTED: DR. WANG MIN-HONG.",
-                "> SYNCING WITH TAIWAN CORE MEGA-HUBS (20/20)... SUCCESS.",
-                "> AURELIUS FINANCIAL NEXUS... CONNECTED.",
-                "> WAITING FOR DIRECTIVE..."
-            ];
-            
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i < messages.length) {
-                    term.innerHTML += `<p>${messages[i]}</p>`;
-                    term.scrollTop = term.scrollHeight;
-                    i++;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 600);
-        }
-
-        // 系統提示邏輯
-        function sysMsg(msg) {
-            // 寫入終端機
-            const term = document.getElementById('term-output');
-            const time = new Date().toLocaleTimeString();
-            term.innerHTML += `<p style="color:var(--sf-gold);">[${time}] > ${msg}</p>`;
-            term.scrollTop = term.scrollHeight;
-
-            // 彈出強烈提示框
-            const toast = document.getElementById('sys-toast');
-            toast.innerText = `SYS_MSG: ${msg}`;
-            toast.style.bottom = '30px';
-            setTimeout(() => { toast.style.bottom = '-100px'; }, 3000);
+        // 時鐘與打卡系統
+        function startClock() {
+            const today = new Date();
+            let h = today.getHours(); let m = today.getMinutes(); let s = today.getSeconds();
+            m = m < 10 ? "0" + m : m; s = s < 10 ? "0" + s : s;
+            document.getElementById('erp-clock').innerHTML = h + ":" + m + ":" + s;
+            setTimeout(startClock, 1000);
         }
         
-        // 允許按 Enter 鍵登入
-        document.getElementById("loginPwd").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                executeLogin();
+        function doPunch(type) {
+            const time = document.getElementById('erp-clock').innerText;
+            showToast(`✅ ${type}打卡成功！時間已紀錄：${time}`);
+        }
+
+        // BPM 簽核流程邏輯
+        let currentRowId = null;
+        
+        function openApprovalModal(rowId, formId, title, desc) {
+            currentRowId = rowId;
+            document.getElementById('bpm-modal-id').innerText = formId;
+            document.getElementById('bpm-modal-title').innerText = title;
+            document.getElementById('bpm-modal-desc').innerText = desc;
+            document.getElementById('bpm-pin').value = '';
+            document.getElementById('bpm-modal').style.display = 'flex';
+        }
+
+        function closeBpmModal() {
+            document.getElementById('bpm-modal').style.display = 'none';
+        }
+
+        function executeApprove(action) {
+            const pin = document.getElementById('bpm-pin').value;
+            if (pin !== '123') {
+                alert("⚠️ 電子憑證金鑰錯誤！");
+                return;
             }
-        });
+            
+            closeBpmModal();
+            document.getElementById(currentRowId).style.display = 'none'; // 隱藏已簽核的行
+            
+            // 更新計數器
+            let countElements = [document.getElementById('nav-bpm-badge'), document.getElementById('dash-bpm-count')];
+            countElements.forEach(el => {
+                let count = parseInt(el.innerText) - 1;
+                el.innerText = count;
+                if(count === 0) el.style.display = 'none';
+            });
+
+            if (action === 'approve') {
+                showToast("✅ 表單已核准！ERP 系統已將資料拋轉至財務 (FICO) 模組。");
+            } else {
+                showToast("⚠️ 表單已退回申請人！");
+            }
+        }
+
+        // 系統提示框
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
     </script>
 </body>
 </html>

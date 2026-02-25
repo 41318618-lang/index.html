@@ -2,17 +2,101 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>學務處 | 極元科技大學</title>
+    <title>學務處 Pro Max | 極元科技大學</title>
     <style>
-        :root { --university-blue: #002D56; --academic-red: #A51C30; --gold-accent: #B8860B; }
-        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #F4F6F9; color: #333; line-height: 1.8; }
-        header { background: var(--university-blue); color: white; padding: 40px 10%; border-bottom: 5px solid var(--gold-accent); }
-        .back-link { color: white; text-decoration: none; font-size: 1.1rem; opacity: 0.8; transition: 0.3s; }
-        .back-link:hover { opacity: 1; color: var(--gold-accent); }
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 3fr; gap: 40px; }
+        body { font-family: "Noto Sans TC", sans-serif; margin: 0; background: #fffcf5; display: flex; }
+        .sidebar { width: 260px; background: #8c1515; color: white; height: 100vh; position: fixed; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+        .sidebar h2 { text-align: center; font-size: 1.3rem; padding: 25px 0; margin: 0; border-bottom: 1px solid rgba(255,255,255,0.2); color: #fdf8e4; }
+        .menu-item { display: block; padding: 16px 25px; color: #f9e6e6; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.3s; font-weight: bold; }
+        .menu-item:hover { background: #002D56; color: white; padding-left: 35px; border-left: 4px solid #c5a059; }
         
-        .sidebar { background: white; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 8px; align-self: start; border-top: 4px solid var(--gold-accent); }
-        .sidebar h3 { margin-top: 0; color: var(--university-blue); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .sidebar ul { list-style: none; padding: 0; }
-        .sidebar li { padding: 12px 10px; border
+        .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
+        .header { background: white; padding: 25px 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 6px solid #c5a059; margin-bottom: 30px; }
+        .header h1 { margin: 0; color: #8c1515; font-size: 2rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid #c5a059; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(184,134,11,0.15); border-top-color: #8c1515; }
+        .card h3 { color: #8c1515; margin-top: 0; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 600px; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 25px; font-size: 1.8rem; cursor: pointer; color: #999; }
+        .close-btn:hover { color: #A51C30; }
+        
+        input, select { width: 100%; padding: 12px; margin: 10px 0 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn-submit { background: #c5a059; color: #00152b; padding: 12px; border: none; border-radius: 5px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        #toast { display: none; position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 8px; font-weight: bold; z-index: 2000; }
+    </style>
+</head>
+<body>
+    <div id="toast">✅ 操作成功！</div>
+    <div class="sidebar">
+        <h2>極元學務中樞<br><span style="font-size: 0.8rem; color: #fff;">學務長：林育才 博士</span></h2>
+        <a href="index.html" class="menu-item">⬅ 返回校本部首頁</a>
+        <a href="#" class="menu-item" onclick="openModal('scholarshipModal')">💰 勝發獎學金申請</a>
+        <a href="#" class="menu-item" onclick="alert('勝發集團醫療直升機已備妥，有緊急醫療需求請直接按下 SOS 按鈕。')">🚁 高階醫療給付</a>
+        <a href="#" class="menu-item" onclick="openModal('counselingModal')">🧠 AI 心理潛能輔導</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>學生事務處 Office of Student Affairs</h1>
+            <p style="color:#666; margin: 5px 0 0 0; font-size:1.1rem;">打造全球最優越的校園生活與職涯起點</p>
+        </div>
+
+        <div class="grid">
+            <div class="card" onclick="openModal('scholarshipModal')">
+                <h3>💰 勝發星際獎學金 (月領 15 萬)</h3>
+                <p>提交本學期亞原子研究專案進度，申請由集團全額給付之頂級津貼與學雜費全免。</p>
+            </div>
+            <div class="card" onclick="alert('宿舍抽籤結果：恭喜您抽中「勝發星際宿舍」單人行政套房！')">
+                <h3>🏢 星際宿舍抽籤系統</h3>
+                <p>配備醫療級 AI 睡眠監測系統與防禦力場之頂級宿舍申請。</p>
+            </div>
+            <div class="card" onclick="openModal('counselingModal')">
+                <h3>🧠 頂尖天才心理潛能開發</h3>
+                <p>預約聯合國等級之心理諮商，穩定高壓情緒，開發深層腦波潛能。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="scholarshipModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('scholarshipModal')">&times;</span>
+            <h2 style="color: #8c1515; margin-top:0;">💰 勝發星際獎學金 撥款申請</h2>
+            <form onsubmit="event.preventDefault(); showToast('✅ 申請已送出！審核通過後，15萬元將於每月 5 日匯入您的勝發 Pay。'); closeModal('scholarshipModal');">
+                <label style="font-weight:bold;">入帳勝發 Pay 帳號：</label>
+                <input type="text" value="SF-123456789-JUT" readonly style="background:#f0f0f0;">
+                <label style="font-weight:bold;">本期研究專題名稱 (王閔弘副校長實驗室)：</label>
+                <input type="text" required placeholder="例如：量子補償演算法於金融清算之應用">
+                <button type="submit" class="btn-submit">確認簽署並送出申請</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="counselingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('counselingModal')">&times;</span>
+            <h2 style="color: #8c1515; margin-top:0;">🧠 AI 潛能開發與諮商預約</h2>
+            <form onsubmit="event.preventDefault(); showToast('✅ 預約成功！諮商師將於約定時間與您進行腦波連線。'); closeModal('counselingModal');">
+                <label style="font-weight:bold;">近期壓力指數 (1-10)：</label>
+                <input type="number" min="1" max="10" required>
+                <label style="font-weight:bold;">希望諮商日期：</label>
+                <input type="date" required>
+                <button type="submit" class="btn-submit" style="background: #002D56; color: white;">送出預約</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg; toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    </script>
+</body>
+</html>

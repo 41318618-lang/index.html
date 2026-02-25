@@ -4,50 +4,30 @@
     <meta charset="UTF-8">
     <title>電機資訊學院 | 極元科技大學</title>
     <style>
-        :root { --university-blue: #002D56; --academic-red: #A51C30; }
-        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #F8F9FA; color: #222; }
-        header { background: var(--university-blue); color: white; padding: 40px 10%; border-bottom: 5px solid var(--academic-red); }
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; gap: 40px; }
-        .sidebar { width: 300px; background: white; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 8px; align-self: start; }
-        .content { flex: 1; background: white; padding: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-radius: 8px; }
-        h1 { margin-top: 0; color: var(--university-blue); font-size: 2.2rem; }
-        h3 { color: var(--academic-red); border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .dean-profile { background: #fdfcf8; border: 1px solid #e9e5d3; padding: 20px; margin-bottom: 30px; }
-        .dept-list { list-style: none; padding: 0; }
-        .dept-list li { background: #f4f4f4; margin-bottom: 10px; padding: 15px; border-left: 4px solid var(--university-blue); font-weight: bold; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        body { font-family: "Noto Sans TC", sans-serif; margin: 0; background: #05070a; color: #fff; overflow-x: hidden; }
+        header { background: rgba(0, 45, 86, 0.9); padding: 40px 10%; border-bottom: 3px solid #c5a059; text-align: center; }
+        header h1 { margin: 0; font-size: 2.5rem; letter-spacing: 2px; }
+        .container { max-width: 1200px; margin: 50px auto; padding: 0 20px; text-align: center; }
+        
+        /* 資工系專屬傳送門按鈕 */
+        .portal-btn { display: inline-block; background: linear-gradient(135deg, #00152b 0%, #002D56 100%); border: 2px solid #00f0ff; color: #00f0ff; padding: 30px 60px; font-size: 2rem; font-weight: 900; border-radius: 12px; cursor: pointer; text-decoration: none; transition: 0.4s; box-shadow: 0 0 20px rgba(0,240,255,0.2); position: relative; overflow: hidden; }
+        .portal-btn::before { content: 'CSIE'; position: absolute; font-size: 6rem; opacity: 0.1; top: -10px; right: -10px; font-family: 'Share Tech Mono'; }
+        .portal-btn:hover { background: #00f0ff; color: #000; box-shadow: 0 0 40px rgba(0,240,255,0.8); transform: scale(1.05); }
     </style>
 </head>
 <body>
     <header>
-        <div style="font-size: 1.2rem; opacity: 0.8;"><a href="index.html" style="color:white; text-decoration:none;">⬅ 返回校本部</a></div>
-        <h1 style="color:white; margin: 10px 0 0 0; font-size: 2.5rem;">電機資訊學院 College of EECS</h1>
-        <p style="margin: 5px 0 0 0;">亞原子運算與量子網路的全球研發核心</p>
+        <div style="font-family: 'Share Tech Mono'; color: #c5a059; margin-bottom: 10px;">COLLEGE OF EECS</div>
+        <h1>電機資訊學院</h1>
+        <p style="color: #aaa;">亞原子運算與量子網路的全球研發核心</p>
     </header>
-
     <div class="container">
-        <div class="sidebar">
-            <h3>轄下系所 (Departments)</h3>
-            <ul class="dept-list">
-                <li>資訊工程學系 </li>
-                <li>電機工程學系</li>
-                 <li>電子工程學系</li>
-                <li>光電與量子科學研究所</li>
-                <li>主動式資安防禦研究所</li>
-            </ul>
-        </div>
-        
-        <div class="content">
-            <h1>院長介紹 | Dean's Profile</h1>
-            <div class="dean-profile">
-                <h2 style="color: var(--university-blue); margin-top: 0;">趙鼎盛 博士 (Dr. Ding-Sheng Zhao)</h2>
-                <p><strong>頭銜：</strong>電機資訊學院 院長 | IEEE Fellow | 前矽谷頂尖量子運算首席工程師</p>
-                <p><strong>專長：</strong>超大型積體電路(VLSI)設計、量子閘道器架構、邊緣運算晶片開發。</p>
-            </div>
-
-            <h3>學院簡介 | About the College</h3>
-            <p>極元科技大學電機資訊學院（EECS）是全校最具戰略地位的核心學院。本院直接對接勝發集團的「全球量子中樞」與「亞原子製程超級廠區」。</p>
-            <p>本院每年獲得勝發集團超過 500 億台幣的專項設備補助，擁有全亞洲唯一一台「商用級常溫量子電腦」。我們的目標是為帝國培育出能夠編寫下一代世界運行法則的頂級工程師。</p>
-        </div>
+        <h2 style="color: #888; font-weight: 400; margin-bottom: 40px;">請選擇您要進入的學術指揮部</h2>
+        <a href="csie-dept.html" class="portal-btn">
+            進入 資訊工程學系 ➔<br>
+            <span style="font-size: 1rem; color: #fff; font-weight: normal;">(勝發集團 AI 與資安防禦中樞)</span>
+        </a>
     </div>
 </body>
 </html>

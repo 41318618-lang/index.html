@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>極元科大 資訊工程系 | NotebookLM 知識庫架構</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --bg-base: #0d1117; --panel-bg: #161b22; --border: #30363d;
+            --text-main: #c9d1d9; --text-muted: #8b949e;
+            --gold: #c5a059; --cyan: #58a6ff; --red: #da3633;
+        }
+
+        body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background-color: var(--bg-base); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* 頂部 Header */
+        header { background: #010409; height: 60px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; flex-shrink: 0; }
+        .logo { font-size: 1.2rem; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 15px; letter-spacing: 1px; }
+        .logo span { background: var(--cyan); color: #000; padding: 4px 8px; border-radius: 4px; font-family: 'Share Tech Mono'; font-size: 0.9rem; }
+        .header-btn { background: transparent; border: 1px solid var(--border); color: var(--text-main); padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .header-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* 三欄式佈局 */
+        .layout { display: flex; flex: 1; overflow: hidden; }
+
+        /* 左欄：文件來源 (Sources) */
+        .sidebar { width: 280px; background: var(--panel-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .sidebar-title { font-size: 0.8rem; font-weight: bold; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; text-transform: uppercase; }
+        .source-card { background: var(--bg-base); border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; gap: 8px; }
+        .source-card:hover, .source-card.active { border-color: var(--cyan); background: rgba(88,166,255,0.05); }
+        .source-title { font-weight: bold; color: #fff; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .source-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+        /* 中欄：詳細文件展示區 (Document Viewer) */
+        .doc-viewer { flex: 1; padding: 40px; overflow-y: auto; background: var(--bg-base); position: relative; }
+        .doc-section { display: none; animation: fadeIn 0.3s ease; }
+        .doc-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .doc-title { font-size: 2rem; color: #fff; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 30px; }
+        .doc-title span { color: var(--gold); }
+
+        /* 教授與成員卡片 */
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .profile-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .profile-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 15px; }
+        .p-name { font-size: 1.3rem; font-weight: bold; color: var(--cyan); margin: 0; }
+        .p-title { font-size: 0.85rem; color: var(--gold); font-family: 'Share Tech Mono'; }
+        .p-body { font-size: 0.9rem; line-height: 1.6; color: var(--text-main); }
+        .tag { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; display: inline-block; margin: 2px; }
+
+        /* 課程規劃表格 */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: var(--panel-bg); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.9rem; }
+        th { background: rgba(0,0,0,0.5); color: var(--text-muted); font-weight: bold; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        /* 按鈕互動 */
+        .action-btn { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+        .action-btn:hover { background: var(--cyan); color: #000; }
+
+        /* 右欄：AI 對話區 (Chat) */
+        .ai-chat { width: 350px; background: var(--panel-bg); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+        .chat-header { padding: 15px 20px; border-bottom: 1px solid var(--border); font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .chat-header .status { width: 10px; height: 10px; background: #3fb950; border-radius: 50%; box-shadow: 0 0 10px #3fb950; }
+        
+        .chat-history { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .msg { display: flex; gap: 12px; max-width: 90%; }
+        .msg.ai { align-self: flex-start; }
+        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; flex-shrink: 0; }
+        .avatar-ai { background: var(--gold); color: #000; }
+        .avatar-user { background: var(--border); color: #fff; }
+        .bubble { padding: 12px 16px; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; }
+        .msg.ai .bubble { background: var(--bg-base); border: 1px solid var(--border); border-top-left-radius: 2px; }
+        .msg.user .bubble { background: var(--cyan); color: #000; border-top-right-radius: 2px; }
+
+        .chat-input { padding: 20px; border-top: 1px solid var(--border); background: #010409; }
+        .input-box { display: flex; background: var(--bg-base); border: 1px solid var(--border); border-radius: 20px; padding: 5px 15px; }
+        .input-box input { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 0.95rem; }
+        .send-btn { background: transparent; border: none; color: var(--cyan); cursor: pointer; font-size: 1.2rem; }
+
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 10px 20px; border-radius: 4px; font-weight: bold; z-index: 9999; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <div id="toast">✅ 指令執行成功</div>
+
+    <header>
+        <div class="logo"><span>CSIE</span> 極元科技大學 資訊工程系</div>
+        <div>
+            <button class="header-btn" onclick="location.href='eecs-college.html'">返回電資學院</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-title">系所資料庫 (SOURCES)</div>
+            
+            <div class="source-card active" onclick="switchDoc('doc-faculty', this, '載入師資陣容與系主任資料。')">
+                <div class="source-title">👨‍🏫 系主任與師資陣容</div>
+                <div class="source-desc">包含余國正主任、王閔弘副校長、黃郁琇教授及台大合聘教授。</div>
+            </div>
+            
+            <div class="source-card" onclick="switchDoc('doc-staff', this, '載入系辦公室成員與業務職掌。')">
+                <div class="source-title">🏢 系辦成員與職掌</div>
+                <div class="source-desc">行政秘書、系統技士及獎學金承辦人聯絡資訊。</div>
+            </div>
+
+            <div class="source-card" onclick="switchDoc('doc-curriculum', this, '載入 112 學年度四技課程規劃標準表 (128學分)。')">
+                <div class="source-title">📚 課程規劃標準 (128學分)</div>
+                <div class="source-desc">大一至大四必修/選修地圖，含 C/Python、資料結構、AIoT 與實務專題。</div>
+            </div>
+
+            <div class="source-card" onclick="switchDoc('doc-rules', this, '載入畢業門檻、校外實習與實務專題規範。')">
+                <div class="source-title">📜 畢業門檻與專題規範</div>
+                <div class="source-desc">勝發英語檢定、程式能力畢業門檻、暑期校外實習辦法。</div>
+            </div>
+
+            <div class="source-card" onclick="switchDoc('doc-honors', this, '載入近期師生榮譽與勝發集團產學合作案。')">
+                <div class="source-title">🏆 師生榮譽與實驗室</div>
+                <div class="source-desc">國科會計畫、勝發 4500 億產學案與常溫量子實驗室簡介。</div>
+            </div>
+        </aside>
+
+        <main class="doc-viewer">
+            
+            <div id="doc-faculty" class="doc-section active">
+                <h1 class="doc-title">系主任與 <span>師資陣容</span> (Faculty)</h1>
+                <div class="profile-grid">
+                    <div class="profile-card" style="border-color: var(--gold);">
+                        <div class="profile-header">
+                            <div>
+                                <h3 class="p-name" style="color: var(--gold);">余國正 博士 (Dr. Gwo-Jeng Yu)</h3>
+                                <div class="p-title">特聘教授 兼 資工系 系主任</div>
+                            </div>
+                            <button class="action-btn" onclick="interact('發送 Email 給余主任')">✉️ Email</button>
+                        </div>
+                        <div class="p-body">
+                            <p><strong>最高學歷：</strong>國立成功大學 電機工程學系 博士</p>
+                            <p><strong>研究專長：</strong><br><span class="tag">半導體電路設計 (VLSI)</span> <span class="tag">AI 硬體系統製造</span> <span class="tag">智慧製造與控制</span></p>
+                            <p style="color: var(--text-muted);">經歷：主導極元科大與勝發集團「半導體封測關鍵製程與設備」產學計畫。帶領資工系確立 IC 設計與 AIoT 雙核心發展。</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-card" style="border-color: var(--red);">
+                        <div class="profile-header">
+                            <div>
+                                <h3 class="p-name" style="color: var(--red);">王閔弘 博士</h3>
+                                <div class="p-title">學術副校長 / 專任特聘講座教授</div>
+                            </div>
+                            <button class="action-btn" onclick="interact('預約副校長 Office Hour')">📅 預約面談</button>
+                        </div>
+                        <div class="p-body">
+                            <p><strong>最高學歷：</strong>哈佛大學 電機資訊雙博士</p>
+                            <p><strong>研究專長：</strong><br><span class="tag">主動式資安防禦</span> <span class="tag">量子補償演算法</span> <span class="tag">大型語言模型 (LLM)</span></p>
+                            <p style="color: var(--text-muted);">經歷：勝發集團最高戰略顧問，主導 4500 億星際通訊陣列及國家數位盾牌計畫。</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div><h3 class="p-name">黃郁琇 博士</h3><div class="p-title">專任助理教授</div></div>
+                            <button class="action-btn" onclick="interact('檢視黃教授國科會計畫')">🔬 產學計畫</button>
+                        </div>
+                        <div class="p-body">
+                            <p><strong>研究專長：</strong><br><span class="tag">5G AIoT 應用</span> <span class="tag">智慧照護與生醫訊號</span></p>
+                            <p style="color: var(--text-muted);">主持「AI賦能資安科技應用實務學程」產學合作案。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div><h3 class="p-name">傅日明 博士</h3><div class="p-title">專任助理教授</div></div>
+                            <button class="action-btn" onclick="interact('檢視傅教授課程大綱')">📚 授課清單</button>
+                        </div>
+                        <div class="p-body">
+                            <p><strong>研究專長：</strong><br><span class="tag">雲端運算實務</span> <span class="tag">行動網路與安全</span></p>
+                            <p style="color: var(--text-muted);">主導資通訊軟體創新人才推升計畫，負責伺服器虛擬化課程。</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div><h3 class="p-name" style="color: #fff;">李宏毅 博士</h3><div class="p-title">合聘特聘教授 (與台大合聘)</div></div>
+                            <button class="action-btn" onclick="interact('觀看機器學習公開課')">▶️ 公開課</button>
+                        </div>
+                        <div class="p-body">
+                            <p><strong>研究專長：</strong><br><span class="tag">深度學習 (Deep Learning)</span> <span class="tag">語音辨識</span> <span class="tag">生成式 AI</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="doc-staff" class="doc-section">
+                <h1 class="doc-title">系辦成員與 <span>業務職掌</span> (Staff)</h1>
+                <table style="background: var(--panel-bg);">
+                    <tr><th>姓名/職稱</th><th>聯絡分機</th><th>主要業務職掌</th><th>操作</th></tr>
+                    <tr>
+                        <td style="color:#fff; font-weight:bold;">吳雅婷 / 行政專員 (系助)</td>
+                        <td>Ext. 3702</td>
+                        <td>
+                            1. 大學部/碩士班 選課、加退選異常處理。<br>
+                            2. 畢業門檻審查與學分抵免。<br>
+                            3. 辦理「勝發星際獎學金 (每月15萬)」初審收件。
+                        </td>
+                        <td><button class="action-btn" onclick="interact('下載獎學金申請表')">表單下載</button></td>
+                    </tr>
+                    <tr>
+                        <td style="color:#fff; font-weight:bold;">陳建宏 / 系統技士</td>
+                        <td>Ext. 3703</td>
+                        <td>
+                            1. 資訊工程系機房與伺服器維護。<br>
+                            2. AIoT / XR 數位雙生實驗室設備管理。<br>
+                            3. 勞動部「電腦軟硬體裝修乙/丙級」檢定考場維運。
+                        </td>
+                        <td><button class="action-btn" onclick="interact('申請實驗室門禁權限')">門禁申請</button></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="doc-curriculum" class="doc-section">
+                <h1 class="doc-title">大學部四技 <span>課程標準表</span> (Curriculum)</h1>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">說明：最低畢業學分 128 學分。包含通識必修 24 學分、專業必修 57 學分、專業選修 47 學分。</p>
+                
+                <h3 style="color: var(--cyan);">大一 (基礎科學與程式奠基)</h3>
+                <table>
+                    <tr><th>課程名稱</th><th>必/選</th><th>學分</th><th>對應核心能力</th></tr>
+                    <tr><td style="color:#fff;">計算機概論</td><td>必修</td><td>3</td><td>資訊科學基礎</td></tr>
+                    <tr><td style="color:#fff;">計算機程式設計 (C/Python)</td><td>必修</td><td>3</td><td>程式邏輯與演算法建構</td></tr>
+                    <tr><td style="color:#fff;">微積分 (一)(二) / 物理學</td><td>必修</td><td>6</td><td>工程數學基礎</td></tr>
+                    <tr><td style="color:#fff;">離散數學 / 資訊工程倫理</td><td>必修</td><td>4</td><td>邏輯推演與工程倫理</td></tr>
+                </table>
+
+                <h3 style="color: var(--cyan);">大二 (硬體架構與系統網路)</h3>
+                <table>
+                    <tr><th>課程名稱</th><th>必/選</th><th>學分</th><th>對應核心能力</th></tr>
+                    <tr><td style="color:#fff;">資料結構 (Data Structures)</td><td>必修</td><td>3</td><td>進階演算法與資料處理</td></tr>
+                    <tr><td style="color:#fff;">數位系統設計 / 電子電路</td><td>必修</td><td>6</td><td>半導體與 IC Design 基礎</td></tr>
+                    <tr><td style="color:#fff;">電腦網路原理與實務</td><td>必修</td><td>3</td><td>通訊協定與網路架構</td></tr>
+                    <tr><td style="color:#fff;">物聯網系統概論 (AIoT)</td><td>選修</td><td>3</td><td>邊緣運算與感測器應用</td></tr>
+                </table>
+
+                <h3 style="color: var(--cyan);">大三 (AI、資安與專業領域)</h3>
+                <table>
+                    <tr><th>課程名稱</th><th>必/選</th><th>學分</th><th>對應核心能力</th></tr>
+                    <tr><td style="color:#fff;">作業系統 (OS) / 演算法</td><td>必修</td><td>6</td><td>系統底層與效能最佳化</td></tr>
+                    <tr><td style="color:#fff;">網路攻擊鍊滲透實務</td><td>選修</td><td>3</td><td>資訊安全管理系統 (ISMS)</td></tr>
+                    <tr><td style="color:#fff;">人工智慧 / 機器學習</td><td>選修</td><td>3</td><td>生成式 AI 與大數據模型訓練</td></tr>
+                    <tr><td style="color:#fff;">3D列印實務 / 記憶體封裝設備實務</td><td>選修</td><td>3</td><td>勝發集團產線對接能力</td></tr>
+                </table>
+
+                <h3 style="color: var(--cyan);">大四 (實務專題與企業接軌)</h3>
+                <table>
+                    <tr><th>課程名稱</th><th>必/選</th><th>學分</th><th>對應核心能力</th></tr>
+                    <tr><td style="color:#fff;">實務專題 (Capstone Project)</td><td>必修</td><td>4</td><td>團隊合作與系統整合開發</td></tr>
+                    <tr><td style="color:#fff;">學期校外實習 / 暑期實習</td><td>選修</td><td>12</td><td>勝發集團廠區職場體驗</td></tr>
+                </table>
+            </div>
+
+            <div id="doc-rules" class="doc-section">
+                <h1 class="doc-title">畢業門檻與 <span>專題規範</span> (Regulations)</h1>
+                <div class="profile-grid" style="grid-template-columns: 1fr;">
+                    <div class="profile-card">
+                        <h3 style="color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 10px;">一、 總學分與跨系選修規範</h3>
+                        <p>1. 學生須修滿 <strong>128 學分</strong> 始得畢業。</p>
+                        <p>2. 跨院/跨系選修學分至多採認 10 學分，且須經系主任核准。</p>
+                    </div>
+                    <div class="profile-card">
+                        <h3 style="color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 10px;">二、 實務專題 (必修)</h3>
+                        <p>1. 在學期間以 2 至 3 人為一組，依本系「實務專題實施辦法」規定，完成 1 件軟硬體系統整合之「實務專題」作品。</p>
+                        <p>2. 專題需於大四上學期參加「資工系專題成果展」並通過教授群口試審查。</p>
+                        <button class="action-btn" onclick="interact('下載實務專題格式規範與歷屆得獎作品')">下載專題規範 PDF</button>
+                    </div>
+                    <div class="profile-card">
+                        <h3 style="color: var(--gold); border-bottom: 1px solid var(--border); padding-bottom: 10px;">三、 校級與系級能力檢定門檻</h3>
+                        <p>1. <strong>外語能力：</strong>通過 TOEIC 750 分或等同之「勝發高階英語檢定」。</p>
+                        <p>2. <strong>資訊能力：</strong>取得勞動部「電腦軟體應用乙級」或經濟部 ITE 資訊專業人員鑑定證書。</p>
+                        <p>3. <strong>服務學習：</strong>完成 40 小時之偏鄉亞原子科普或數位落差志工服務。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="doc-honors" class="doc-section">
+                <h1 class="doc-title">師生榮譽與 <span>頂尖實驗室</span> (Honors & Labs)</h1>
+                <div class="profile-grid">
+                    <div class="profile-card" style="border-top: 3px solid var(--red);">
+                        <h3 style="color:#fff;">🥇 近期師生榮譽 (2025-2026)</h3>
+                        <ul>
+                            <li style="margin-bottom:10px;">王閔弘副校長 榮獲行政院「傑出科技貢獻獎」。</li>
+                            <li style="margin-bottom:10px;">資工系團隊於「2025 駭客來襲戰隊迎擊：全國大專盃」勇奪總冠軍。</li>
+                            <li style="margin-bottom:10px;">黃郁琇教授 獲國科會核定「AI賦能資安科技應用實務學程」三年期產學計畫。</li>
+                            <li>本系大四畢業生 100% 取得勝發集團預聘書，平均起薪突破年薪 300 萬。</li>
+                        </ul>
+                    </div>
+                    <div class="profile-card" style="border-top: 3px solid var(--cyan);">
+                        <h3 style="color:#fff;">🔬 重點實驗室配置</h3>
+                        <ul>
+                            <li style="margin-bottom:10px;"><strong>XR 虛擬實境與數位行銷開發中心</strong>：配置全向跑步機與腦波感測頭盔。</li>
+                            <li style="margin-bottom:10px;"><strong>網路攻防實戰靶場 (Cyber Range)</strong>：模擬真實國家級基礎設施遭駭客攻擊之防禦演練。</li>
+                            <li style="margin-bottom:10px;"><strong>大數據與雲端運算所</strong>：直連勝發集團超算中心，提供學生 ExaFLOPS 級別之算力資源。</li>
+                        </ul>
+                        <button class="action-btn" onclick="interact('開啟實驗室環景全息導覽')">進入 3D 環景導覽</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <aside class="ai-chat">
+            <div class="chat-header">
+                <div class="status"></div>
+                Shengfa AI 導覽助理
+            </div>
+            <div class="chat-history" id="chat-history">
+                <div class="msg ai">
+                    <div class="avatar avatar-ai">AI</div>
+                    <div class="bubble">
+                        執行長您好，我是資工系專屬 AI。<br><br>我已為您載入「極元科大 資訊工程系」的完整架構。包含真實的 128 學分課程表、師資名單與系辦分工。<br><br>請點擊左側文件，或點擊文件內的任何按鈕，我會為您執行對應指令。
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <div class="input-box">
+                    <input type="text" id="chat-input" placeholder="詢問關於必修學分或實驗室..." onkeypress="if(event.key === 'Enter') sendMsg()">
+                    <button class="send-btn" onclick="sendMsg()">➤</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // 切換文件 (NotebookLM 核心功能)
+        function switchDoc(docId, element, aiSummary) {
+            // 切換側邊欄 Active 狀態
+            document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+
+            // 切換中間文件
+            document.querySelectorAll('.doc-section').forEach(d => d.classList.remove('active'));
+            document.getElementById(docId).classList.add('active');
+
+            // AI 自動回覆
+            appendChat('ai', `📄 <b>文件已切換：</b> ${aiSummary}`);
+        }
+
+        // 所有按鈕的真實互動邏輯
+        function interact(actionDesc) {
+            // 彈出 Toast 提示
+            const toast = document.getElementById('toast');
+            toast.innerText = `⚙️ 系統執行：${actionDesc}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+
+            // 在聊天室留下紀錄
+            appendChat('user', `[點擊按鈕] ${actionDesc}`);
+            
+            // AI 根據動作回覆
+            setTimeout(() => {
+                if(actionDesc.includes('Email')) {
+                    appendChat('ai', '已為您啟動 Shengfa Secure Mail 撰寫視窗，收件人已自動帶入 ty.lin@shengfa.global。');
+                } else if(actionDesc.includes('下載')) {
+                    appendChat('ai', '文件下載中... 檔案已使用 Level 5 量子加密保護。');
+                } else if(actionDesc.includes('預約')) {
+                    appendChat('ai', '已存取您的 CEO 行事曆，並發送會議邀請給王閔弘副校長。');
+                } else {
+                    appendChat('ai', '指令已確認並傳送至後端伺服器處理。');
+                }
+            }, 600);
+        }
+
+        // 聊天室邏輯
+        function sendMsg() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            appendChat('user', text);
+            input.value = '';
+
+            setTimeout(() => {
+                let reply = "根據系所規章，資工系的核心為 AIoT 與 IC Design，若有更深度的需求，請直接查閱中間的文件內容。";
+                if(text.includes('畢業') || text.includes('學分')) reply = "本系最低畢業學分為 128 學分，包含通識 24、專業必修 57 及專業選修 47。請參閱「課程規劃」與「畢業門檻」文件。";
+                if(text.includes('主任') || text.includes('教授')) reply = "余國正主任專精於半導體電路與 AI 系統；王閔弘副校長主導資安防禦；黃郁琇與傅日明教授則負責 AIoT 與雲端運算。";
+                
+                appendChat('ai', reply);
+            }, 800);
+        }
+
+        function appendChat(sender, htmlText) {
+            const history = document.getElementById('chat-history');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${sender}`;
+            msgDiv.innerHTML = `
+                <div class="avatar avatar-${sender}">${sender === 'ai' ? 'AI' : 'U'}</div>
+                <div class="bubble">${htmlText}</div>
+            `;
+            history.appendChild(msgDiv);
+            history.scrollTop = history.scrollHeight;
+        }
+    </script>
+</body>
+</html>

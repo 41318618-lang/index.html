@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>極元科大 資訊工程系 | CSIE AI Knowledge Base</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-color: #f9f9fa; /* NotebookLM 乾淨的背景色 */
+            --panel-bg: #ffffff;
+            --text-main: #202124;
+            --text-muted: #5f6368;
+            --border-color: #dadce0;
+            --primary: #1a73e8; /* 經典科技藍 */
+            --hover-bg: #f1f3f4;
+            --accent-gold: #c5a059; /* 勝發集團專屬色 */
+        }
+
+        body { font-family: 'Noto Sans TC', sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* 頂部導覽 */
+        header { background: var(--panel-bg); height: 64px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; }
+        .logo { font-size: 1.2rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .logo span { background: var(--text-main); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .header-actions button { background: white; border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 20px; font-weight: 500; cursor: pointer; transition: 0.2s; }
+        .header-actions button:hover { background: var(--hover-bg); }
+
+        /* 主佈局：左側來源 (Sources) + 右側 AI 聊天與摘要 */
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+
+        /* 左側：文本來源區 (正修資工系內容) */
+        .sidebar { width: 320px; background: var(--bg-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .section-title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; }
+        
+        .source-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .source-card:hover, .source-card.active { border-color: var(--primary); box-shadow: 0 4px 12px rgba(26,115,232,0.15); }
+        .source-icon { font-size: 1.5rem; margin-bottom: 10px; }
+        .source-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+        .source-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* 右側：AI 互動區 */
+        .workspace { flex: 1; background: var(--panel-bg); display: flex; flex-direction: column; position: relative; }
+        
+        /* 頂部 Podcast 播放區 (NotebookLM 招牌功能) */
+        .audio-overview { margin: 24px 40px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e8f0fe 100%); border-radius: 16px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; }
+        .play-btn { width: 48px; height: 48px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(26,115,232,0.3); transition: 0.2s; }
+        .play-btn:hover { transform: scale(1.05); }
+        .audio-text h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
+        .audio-text p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+        .audio-wave { display: flex; gap: 3px; align-items: center; height: 20px; display: none; margin-left: auto; }
+        .wave-bar { width: 4px; background: var(--primary); border-radius: 2px; animation: wave 1s infinite ease-in-out alternate; }
+        @keyframes wave { 0% { height: 4px; } 100% { height: 20px; } }
+
+        /* 聊天紀錄區 */
+        .chat-container { flex: 1; padding: 0 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding-bottom: 100px; }
+        .msg { display: flex; gap: 16px; max-width: 80%; }
+        .msg.ai { align-self: flex-start; }
+        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; flex-shrink: 0; }
+        .avatar-ai { background: var(--accent-gold); color: white; }
+        .avatar-user { background: #e8eaed; color: var(--text-main); }
+        .bubble { padding: 16px 20px; border-radius: 16px; font-size: 0.95rem; line-height: 1.6; }
+        .msg.ai .bubble { background: #f1f3f4; border-top-left-radius: 4px; }
+        .msg.user .bubble { background: var(--primary); color: white; border-top-right-radius: 4px; }
+
+        /* 底部輸入框 */
+        .input-area { position: absolute; bottom: 0; width: 100%; padding: 20px 40px; box-sizing: border-box; background: linear-gradient(transparent, var(--panel-bg) 20%); }
+        .input-box { display: flex; background: white; border: 1px solid var(--border-color); border-radius: 24px; padding: 8px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .input-box input { flex: 1; border: none; outline: none; font-size: 1rem; padding: 8px; font-family: inherit; }
+        .send-btn { background: var(--text-main); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .send-btn:hover { background: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span>CSIE</span> 極元科技大學 資訊工程系
+        </div>
+        <div class="header-actions">
+            <button onclick="window.location.href='index.html'">返回校本部</button>
+            <button style="background: var(--text-main); color: white;">申請入學</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="section-title">來源文本 (SOURCES)</div>
+
+            <div class="source-card" onclick="triggerQuery('發展重點與特色', this)">
+                <div class="source-icon">🎯</div>
+                <div class="source-title">系所發展重點</div>
+                <div class="source-desc">
+                    聚焦於 AIoT 技術應用、XR 數位內容開發與平台建置。深入生成式 AI 應用技術與資安攻防，建構完善的資訊安全管理系統(ISMS)。
+                </div>
+            </div>
+
+            <div class="source-card" onclick="triggerQuery('核心課程介紹', this)">
+                <div class="source-icon">📚</div>
+                <div class="source-title">核心課程模組</div>
+                <div class="source-desc">
+                    涵蓋影像處理、物聯網整合、雲端運算、大數據分析與機器學習。同時包含系統與資料庫安全、物聯網資安威脅檢測與防護。
+                </div>
+            </div>
+
+            <div class="source-card" onclick="triggerQuery('半導體與產業對接', this)">
+                <div class="source-icon">⚙️</div>
+                <div class="source-title">驅動台灣產業的核心力量</div>
+                <div class="source-desc">
+                    深入半導體產業鏈：從 EDA、IP 到 IC Design。培育數位 IC 設計工程師、類比 IC 設計工程師、佈局與軟體工程師，對接勝發集團設備與製程需求。
+                </div>
+            </div>
+
+            <div class="source-card" onclick="triggerQuery('招生與入學管道', this)">
+                <div class="source-icon">🎓</div>
+                <div class="source-title">入學管道與學制</div>
+                <div class="source-desc">
+                    包含日間部學士班、進修部學士班與碩士班。提供申請入學、技優入學、甄選入學及產攜專班等多重管道。
+                </div>
+            </div>
+        </aside>
+
+        <main class="workspace">
+            <div class="audio-overview">
+                <button class="play-btn" id="playBtn" onclick="toggleAudio()">▶</button>
+                <div class="audio-text">
+                    <h3>Deep Dive: 極元資工系指南</h3>
+                    <p>由 AI 雙主機為您解析本系的發展重點、XR 技術與 IC 產業對接優勢。</p>
+                </div>
+                <div class="audio-wave" id="audioWave">
+                    <div class="wave-bar" style="animation-delay: 0s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.2s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.4s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.6s"></div>
+                    <div class="wave-bar" style="animation-delay: 0.8s"></div>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chatArea">
+                <div class="msg ai">
+                    <div class="avatar avatar-ai">AI</div>
+                    <div class="bubble">
+                        您好！我是極元科大資工系的 AI 導覽助理。<br><br>
+                        本系以「大資工時代」為核心，頭腦思想是創新的來源，科技應用是無限的想像。<br>
+                        您可以點擊左側的「來源文本」卡片，或是直接在下方輸入問題（例如：「你們有教機器學習嗎？」或「畢業能做什麼工程師？」），我會為您總結資訊。
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-box">
+                    <input type="text" id="userInput" placeholder="詢問關於資工系的課程、發展重點或半導體出路..." onkeypress="handleEnter(event)">
+                    <button class="send-btn" onclick="sendCustomMsg()">↑</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // AI 知識庫回答資料 (基於正修資工內容魔改)
+        const knowledgeBase = {
+            '發展重點與特色': '根據本系規劃，我們聚焦於 **AIoT 技術應用** 與 **XR 數位內容開發**。在資安領域，我們強調**資安攻防技術**與**資訊安全管理系統 (ISMS)**的建置，並深入**生成式 AI 應用技術**，確保學生具備應對未來科技挑戰的能力。',
+            '核心課程介紹': '我們的課程緊貼產業需求，主要包含：<br>1. **人工智慧與數據**：雲端運算、大數據分析、機器學習與影像處理。<br>2. **系統與資安**：網路攻防技術、系統與資料庫安全、物聯網資安威脅檢測與防護。',
+            '半導體與產業對接': '我們是驅動台灣產業的核心力量！課程銜接半導體產業鏈（EDA -> IC Design -> 封裝測試）。<br><br>畢業生可勝任：<br>- 數位/類比 IC 設計工程師<br>- 佈局工程師、軟體工程師<br>- 半導體製程、設備與測試工程師。',
+            '招生與入學管道': '我們提供多元學制，包含：日間部學士班、進修部學士班、碩士班與五專產攜專班。<br>入學管道十分暢通，接受申請入學、甄選入學、技優入學與日間部獨招。歡迎加入我們！'
+        };
+
+        const chatArea = document.getElementById('chatArea');
+
+        // 處理左側卡片點擊
+        function triggerQuery(topic, element) {
+            // 視覺狀態切換
+            document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+
+            // 新增使用者訊息
+            appendMsg('user', `請總結「${topic}」的內容。`);
+
+            // 模擬 AI 思考延遲後回覆
+            setTimeout(() => {
+                appendMsg('ai', knowledgeBase[topic]);
+            }, 600);
+        }
+
+        // 處理自行輸入的問題
+        function sendCustomMsg() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            appendMsg('user', text);
+            input.value = '';
+
+            setTimeout(() => {
+                // 簡單的關鍵字匹配，展現互動性
+                if(text.includes('IC') || text.includes('半導體') || text.includes('工程師')) {
+                    appendMsg('ai', knowledgeBase['半導體與產業對接']);
+                } else if(text.includes('AI') || text.includes('人工智慧') || text.includes('資安')) {
+                    appendMsg('ai', knowledgeBase['發展重點與特色'] + '<br><br>我們有專門的網路攻防與機器學習課程！');
+                } else {
+                    appendMsg('ai', '根據目前的系所資料庫，本系（極元科大資工系）的核心圍繞著「AI、XR、資安」三大主軸。您可以點擊左側文件獲取更詳細的課程與招生資訊。');
+                }
+            }, 800);
+        }
+
+        function handleEnter(e) {
+            if(e.key === 'Enter') sendCustomMsg();
+        }
+
+        // 建立訊息氣泡
+        function appendMsg(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `msg ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `avatar avatar-${sender}`;
+            avatar.innerText = sender === 'ai' ? 'AI' : 'U';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = text;
+
+            msgDiv.appendChild(avatar);
+            msgDiv.appendChild(bubble);
+            chatArea.appendChild(msgDiv);
+            
+            // 自動滾動到底部
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // 模擬播放 Audio Overview
+        let isPlaying = false;
+        function toggleAudio() {
+            const btn = document.getElementById('playBtn');
+            const wave = document.getElementById('audioWave');
+            isPlaying = !isPlaying;
+            
+            if(isPlaying) {
+                btn.innerText = '⏸';
+                wave.style.display = 'flex';
+                // 模擬系統廣播
+                setTimeout(() => {
+                    if(isPlaying) appendMsg('ai', '🎙️ <b>[語音摘要生成中]</b>：歡迎來到大資工時代... 極元科大資工系將您的頭腦思想化為創新來源。我們擁有 XR 數位內容開發與 ISMS 資安防護的頂尖資源...');
+                }, 1000);
+            } else {
+                btn.innerText = '▶';
+                wave.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

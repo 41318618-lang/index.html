@@ -7,56 +7,115 @@
         body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #eef2f5; display: flex; }
         .sidebar { width: 250px; background: #A51C30; color: white; height: 100vh; position: fixed; padding-top: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
         .sidebar h2 { text-align: center; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; }
-        .menu-item { display: block; padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .menu-item { display: block; padding: 15px 20px; color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .menu-item:hover { background: #002D56; padding-left: 25px; }
         
         .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #A51C30; }
-        .user-info { font-weight: bold; color: #333; font-size: 1.1rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; border-left: 5px solid #A51C30; margin-bottom: 30px; }
         .logout-btn { background: #002D56; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; }
         
         .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #A51C30; cursor: pointer; transition: 0.3s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .card h3 { margin: 0 0 10px 0; color: #A51C30; }
-        .card p { margin: 0; color: #666; font-size: 0.9rem; }
+
+        /* 擬真彈出視窗 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 700px; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        .close-btn:hover { color: #A51C30; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #A51C30; color: white; }
+        
+        .btn-action { padding: 6px 12px; border: none; border-radius: 3px; cursor: pointer; color: white; margin-right: 5px; }
+        .btn-approve { background: #28a745; }
+        .btn-reject { background: #dc3545; }
+        
+        /* 預算進度條 */
+        .progress-container { width: 100%; background: #eee; border-radius: 5px; margin-top: 15px; overflow: hidden; }
+        .progress-bar { width: 78%; background: #B8860B; height: 20px; color: white; text-align: right; padding-right: 10px; font-size: 0.8rem; line-height: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <h2>教職員管理系統</h2>
-        <a href="#" class="menu-item">📊 教務主控台</a>
-        <a href="#" class="menu-item">👨‍🏫 我的授課清單</a>
-        <a href="#" class="menu-item">📝 成績登錄系統</a>
-        <a href="#" class="menu-item">✅ 假單簽核作業</a>
-        <a href="#" class="menu-item">💰 國科會計畫管理</a>
+        <a href="#" class="menu-item">📊 教授主控台</a>
+        <a href="#" class="menu-item">📅 教師差勤系統</a>
     </div>
 
     <div class="main-content">
         <div class="header">
-            <div class="user-info">王閔弘 副校長 (專任特聘講座教授) ，您好。</div>
+            <div style="font-weight: bold; color: #333;">王閔弘 副校長 (專任特聘講座教授) ，您好。</div>
             <a href="index.html" class="logout-btn">安全登出</a>
         </div>
 
-        <h2 style="color: #333;">教務與研究系統</h2>
         <div class="dashboard-grid">
-            <div class="card" onclick="alert('開啟成績輸入介面：請確保在期限前完成 114 學年度上學期成績上傳。')">
-                <h3>📝 學生期末成績登錄</h3>
+            <div class="card" onclick="openModal('gradeEntryModal')">
+                <h3 style="color: #A51C30; margin-top: 0;">📝 期末成績登錄</h3>
                 <p>上傳並鎖定您本學期所教授課程的學生成績。</p>
             </div>
-            <div class="card" onclick="alert('目前有 3 筆學生請假單待審核。')">
-                <h3>✅ 假單與公文簽核</h3>
+            <div class="card" onclick="openModal('approveModal')">
+                <h3 style="color: #A51C30; margin-top: 0;">✅ 假單簽核 (1件待辦)</h3>
                 <p>審核導生請假單及校內行政公文電子簽核。</p>
             </div>
-            <div class="card" onclick="alert('目前執行中計畫：勝發極端氣候量子補償 (預算：4500億)。')">
-                <h3>🔬 研究經費與計畫管理</h3>
-                <p>查詢勝發集團與國科會撥款之研究專案進度與預算消耗。</p>
-            </div>
-            <div class="card">
-                <h3>📅 教師差勤系統</h3>
-                <p>填寫出國開會、休假與校外兼課申請。</p>
+            <div class="card" onclick="openModal('budgetModal')">
+                <h3 style="color: #A51C30; margin-top: 0;">🔬 研究經費管理</h3>
+                <p>勝發集團撥款專案進度與預算消耗追蹤。</p>
             </div>
         </div>
     </div>
+
+    <div id="gradeEntryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('gradeEntryModal')">&times;</span>
+            <h2 style="color: #A51C30; margin-top: 0;">成績登錄：AI 倫理與主動防禦 (選課人數：3人)</h2>
+            <table>
+                <tr><th>學號</th><th>姓名</th><th>期中考</th><th>期末專案</th><th>總成績</th></tr>
+                <tr><td>123456789</td><td>張同學</td><td>95</td><td>98</td><td><input type="text" value="A+" style="width: 50px;"></td></tr>
+                <tr><td>123456790</td><td>陳同學</td><td>88</td><td>90</td><td><input type="text" value="A" style="width: 50px;"></td></tr>
+                <tr><td>123456791</td><td>林同學</td><td>75</td><td>80</td><td><input type="text" value="B+" style="width: 50px;"></td></tr>
+            </table>
+            <button style="margin-top: 15px; padding: 10px 20px; background: #002D56; color: white; border: none; cursor: pointer; border-radius: 4px;" onclick="alert('成績已上傳至教務處系統，並使用勝發區塊鏈鎖定。'); closeModal('gradeEntryModal');">鎖定並送出成績</button>
+        </div>
+    </div>
+
+    <div id="approveModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('approveModal')">&times;</span>
+            <h2 style="color: #A51C30; margin-top: 0;">待簽核假單</h2>
+            <table>
+                <tr><th>申請人</th><th>假別</th><th>事由</th><th>操作</th></tr>
+                <tr>
+                    <td>張同學 (123456789)</td>
+                    <td>公假</td>
+                    <td>前往勝發集團美國總部實習</td>
+                    <td>
+                        <button class="btn-action btn-approve" onclick="alert('假單已核准！'); closeModal('approveModal');">核准</button>
+                        <button class="btn-action btn-reject" onclick="alert('假單已退回！'); closeModal('approveModal');">退回</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div id="budgetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('budgetModal')">&times;</span>
+            <h2 style="color: #A51C30; margin-top: 0;">專案：第七代星際通訊陣列研發</h2>
+            <p><strong>核定總預算：</strong> NT$ 4,500 億</p>
+            <p><strong>已執行預算：</strong> NT$ 3,510 億</p>
+            <p><strong>執行率：</strong></p>
+            <div class="progress-container">
+                <div class="progress-bar">78%</div>
+            </div>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 15px;">* 註：下一期 990 億款項將於下個月由張家綺行政副校長辦公室核撥。</p>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
 </body>
 </html>

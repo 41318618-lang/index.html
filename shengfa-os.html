@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shengfa OS | 全球執行長最高指揮終端</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        
+        :root { --sf-gold: #c5a059; --sf-red: #8c1515; --sf-dark: #0a0c10; --sf-panel: rgba(22, 27, 34, 0.85); --sf-border: #30363d; --sf-text: #c9d1d9; }
+        body { margin: 0; overflow: hidden; background: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; font-family: 'Noto Sans TC', sans-serif; color: var(--sf-text); height: 100vh; user-select: none; }
+        
+        /* 桌面區域 */
+        .desktop { height: calc(100vh - 50px); position: relative; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; flex-wrap: wrap; gap: 20px; align-content: flex-start; }
+        
+        /* 桌面圖示 */
+        .app-icon { width: 90px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border-radius: 8px; transition: 0.2s; text-align: center; }
+        .app-icon:hover { background: rgba(255,255,255,0.1); border: 1px solid rgba(197,160,89,0.3); }
+        .app-icon .icon-img { font-size: 2.5rem; margin-bottom: 8px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8)); }
+        .app-icon span { font-size: 0.85rem; font-weight: bold; text-shadow: 0 2px 4px #000; color: #fff; }
+        
+        /* 底部任務欄 */
+        .taskbar { height: 50px; background: rgba(10, 12, 16, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--sf-border); position: absolute; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 9999; }
+        .start-btn { background: var(--sf-red); color: #fff; border: none; padding: 8px 15px; border-radius: 4px; font-weight: 900; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 0 10px rgba(140,21,21,0.5); }
+        .taskbar-apps { display: flex; gap: 10px; flex: 1; margin-left: 20px; }
+        .task-app { padding: 8px 15px; background: rgba(255,255,255,0.1); border-radius: 4px; border-bottom: 2px solid var(--sf-gold); font-size: 0.85rem; cursor: pointer; }
+        .sys-tray { display: flex; align-items: center; gap: 15px; font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--sf-gold); }
+
+        /* 擬真可拖曳視窗 */
+        .window { position: absolute; background: var(--sf-panel); backdrop-filter: blur(15px); border: 1px solid var(--sf-border); border-radius: 8px; box-shadow: 0 15px 50px rgba(0,0,0,0.8); display: none; flex-direction: column; overflow: hidden; min-width: 600px; min-height: 400px; z-index: 100; }
+        .window-header { background: #010409; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: grab; border-bottom: 1px solid var(--sf-border); }
+        .window-header:active { cursor: grabbing; }
+        .window-title { font-weight: bold; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .window-controls span { cursor: pointer; margin-left: 15px; font-size: 1.2rem; color: #888; transition: 0.2s; }
+        .window-controls span:hover { color: #fff; }
+        .window-controls .close:hover { color: var(--sf-red); }
+        .window-body { padding: 20px; flex: 1; overflow-y: auto; }
+
+        /* 視窗內容 UI */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .stat-card { background: rgba(0,0,0,0.5); border: 1px solid var(--sf-border); padding: 20px; border-radius: 6px; }
+        .stat-num { font-family: 'Share Tech Mono', monospace; font-size: 2.2rem; color: var(--sf-gold); margin: 5px 0; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--sf-border); text-align: left; font-size: 0.9rem; }
+        th { color: #888; }
+        .btn { padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-approve { background: #238636; color: white; }
+        .btn-approve:hover { background: #2ea043; }
+        .btn-reject { background: var(--sf-red); color: white; }
+
+        /* Toast 提示 */
+        #toast { position: fixed; top: 20px; right: 20px; background: var(--sf-gold); color: #000; padding: 15px 25px; border-radius: 4px; font-weight: bold; font-size: 1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 10000; display: none; }
+    </style>
+</head>
+<body onload="startTime()">
+
+    <div id="toast">✅ 系統訊息</div>
+
+    <div class="desktop">
+        <div class="app-icon" ondblclick="openWindow('win-erp')">
+            <div class="icon-img">📊</div>
+            <span>勝發 ERP 戰情</span>
+        </div>
+        <div class="app-icon" ondblclick="openWindow('win-bpm')">
+            <div class="icon-img">✅</div>
+            <span>全球公文簽核</span>
+            <div style="background:red;color:white;border-radius:10px;padding:0 5px;font-size:0.7rem;position:absolute;top:5px;right:15px;" id="bpm-badge">3</div>
+        </div>
+        <div class="app-icon" ondblclick="openWindow('win-fleet')">
+            <div class="icon-img">🚁</div>
+            <span>載具與資產調度</span>
+        </div>
+        <div class="app-icon" ondblclick="openWindow('win-mail')">
+            <div class="icon-img">✉️</div>
+            <span>最高機密郵件</span>
+        </div>
+        <div class="app-icon" ondblclick="openWindow('win-terminal')">
+            <div class="icon-img">💻</div>
+            <span>系統終端機</span>
+        </div>
+    </div>
+
+    <div class="window" id="win-erp" style="top: 50px; left: 100px; width: 800px; height: 500px;">
+        <div class="window-header" onmousedown="dragWindow(event, 'win-erp')">
+            <div class="window-title">📊 Shengfa Global ERP - 執行長戰情儀表板</div>
+            <div class="window-controls">
+                <span onclick="closeWindow('win-erp')">_</span>
+                <span class="close" onclick="closeWindow('win-erp')">✖</span>
+            </div>
+        </div>
+        <div class="window-body">
+            <h3 style="margin-top:0; color:#fff;">全球營運實時監控 (Q1 2026)</h3>
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div style="color:#888;">集團總市值 (NTD)</div>
+                    <div class="stat-num">1,576,000,000,000,000</div>
+                    <div style="color:#3fb950; font-size:0.8rem;">▲ 股市代號 7352 表現強勁</div>
+                </div>
+                <div class="stat-card">
+                    <div style="color:#888;">本月全球營收 (NTD)</div>
+                    <div class="stat-num">236,000,000,000,000</div>
+                    <div style="color:#3fb950; font-size:0.8rem;">淨利率維持 49.2%</div>
+                </div>
+                <div class="stat-card">
+                    <div style="color:#888;">全球在職員工總數</div>
+                    <div class="stat-num">17,390,000</div>
+                    <div style="color:var(--sf-gold); font-size:0.8rem;">亞洲佔 45%，美洲佔 25%</div>
+                </div>
+                <div class="stat-card">
+                    <div style="color:#888;">超級廠區/樞紐運作狀態</div>
+                    <div class="stat-num">742 / 742</div>
+                    <div style="color:#3fb950; font-size:0.8rem;">● 全球連線正常 (100% Uptime)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="window" id="win-bpm" style="top: 100px; left: 150px; width: 850px; height: 550px;">
+        <div class="window-header" onmousedown="dragWindow(event, 'win-bpm')">
+            <div class="window-title">✅ Shengfa BPM - 執行長專屬簽核通道</div>
+            <div class="window-controls">
+                <span onclick="closeWindow('win-bpm')">_</span>
+                <span class="close" onclick="closeWindow('win-bpm')">✖</span>
+            </div>
+        </div>
+        <div class="window-body">
+            <table>
+                <tr><th>單號</th><th>急限</th><th>提案單位</th><th>主旨摘要</th><th>簽核操作</th></tr>
+                <tr id="doc-1">
+                    <td>INV-001</td><td><span style="color:#ff7b72;">極急件</span></td><td>歐洲併購部</td>
+                    <td style="color:#fff;"><strong>收購德國第一大車用晶片廠</strong><br><span style="color:#888; font-size:0.8rem;">總預算 3.2 兆台幣，已完成盡職調查。請執行長裁示。</span></td>
+                    <td><button class="btn btn-approve" onclick="approveDoc('doc-1', '併購案已核准！3.2兆資金已由 FICO 模組放行。')">核准</button></td>
+                </tr>
+                <tr id="doc-2">
+                    <td>PR-992</td><td><span style="color:var(--sf-gold);">機密</span></td><td>亞洲指揮部</td>
+                    <td style="color:#fff;"><strong>第七代星際通訊陣列 最終發射許可</strong><br><span style="color:#888; font-size:0.8rem;">12 顆低軌量子衛星已就緒，等待執行長發射授權。</span></td>
+                    <td><button class="btn btn-approve" onclick="approveDoc('doc-2', '發射授權已確認！星際通訊陣列進入倒數程序。')">授權發射</button></td>
+                </tr>
+                <tr id="doc-3">
+                    <td>HR-884</td><td>普通</td><td>全球人資長</td>
+                    <td style="color:#fff;"><strong>極元科大 2026 菁英直升名單確認</strong><br><span style="color:#888; font-size:0.8rem;">由王副校長提報之 300 名天才學生，擬起薪 1200 萬錄用。</span></td>
+                    <td><button class="btn btn-approve" onclick="approveDoc('doc-3', '人事案已核准！HR 模組已發送全球錄取通知。')">核准</button></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="window" id="win-fleet" style="top: 150px; left: 200px; width: 600px; height: 450px;">
+        <div class="window-header" onmousedown="dragWindow(event, 'win-fleet')">
+            <div class="window-title">🚁 執行長專屬 - 全球載具調度中樞</div>
+            <div class="window-controls">
+                <span onclick="closeWindow('win-fleet')">_</span>
+                <span class="close" onclick="closeWindow('win-fleet')">✖</span>
+            </div>
+        </div>
+        <div class="window-body">
+            <h3 style="color:var(--sf-gold); margin-top:0;">調度指令 (Dispatch Command)</h3>
+            <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 6px; border: 1px solid var(--sf-border);">
+                <label style="display:block; margin-bottom:10px; font-weight:bold;">選擇目的地 / 任務：</label>
+                <select id="fleet-dest" style="width:100%; padding:10px; background:#010409; color:#fff; border:1px solid #333; margin-bottom: 20px;">
+                    <option>極元科大 頂樓停機坪 (視察學術中樞)</option>
+                    <option>勝發美洲樞紐 (航太運輸總部)</option>
+                    <option>歐洲核融能源基地</option>
+                </select>
+                <label style="display:block; margin-bottom:10px; font-weight:bold;">載具級別：</label>
+                <select id="fleet-type" style="width:100%; padding:10px; background:#010409; color:#fff; border:1px solid #333; margin-bottom: 20px;">
+                    <option>SF-01 執行長專屬超音速私人客機</option>
+                    <option>武裝護衛戰術直升機編隊</option>
+                </select>
+                <button class="btn btn-approve" style="width:100%; padding:12px; font-size:1.1rem;" onclick="dispatchFleet()">確認發送調度指令</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <div style="display: flex; align-items: center;">
+            <button class="start-btn" onclick="showToast('Shengfa OS 系統運作正常。歡迎，執行長。')">
+                <span>⚡</span> SHENGFA
+            </button>
+            <div class="taskbar-apps" id="taskbar-apps">
+                </div>
+        </div>
+        <div class="sys-tray">
+            <span>🛡️ SYS: SECURE</span>
+            <span id="os-clock">00:00:00</span>
+        </div>
+    </div>
+
+    <script>
+        // 1. 時間系統
+        function startTime() {
+            const today = new Date();
+            let h = today.getHours(); let m = today.getMinutes(); let s = today.getSeconds();
+            m = m < 10 ? "0" + m : m; s = s < 10 ? "0" + s : s;
+            document.getElementById('os-clock').innerHTML = h + ":" + m + ":" + s;
+            setTimeout(startTime, 1000);
+        }
+
+        // 2. 視窗管理系統 (開關與層級)
+        let zIndexCounter = 100;
+        
+        function openWindow(winId) {
+            const win = document.getElementById(winId);
+            win.style.display = 'flex';
+            bringToFront(winId);
+            updateTaskbar(winId, true);
+        }
+
+        function closeWindow(winId) {
+            document.getElementById(winId).style.display = 'none';
+            updateTaskbar(winId, false);
+        }
+
+        function bringToFront(winId) {
+            zIndexCounter++;
+            document.getElementById(winId).style.zIndex = zIndexCounter;
+        }
+
+        // 點擊視窗本體時也移到最上層
+        document.querySelectorAll('.window').forEach(win => {
+            win.addEventListener('mousedown', function() {
+                bringToFront(this.id);
+            });
+        });
+
+        // 3. 視窗拖曳系統 (Pro Max 核心技術)
+        let isDragging = false;
+        let currentDragWindow = null;
+        let offsetX = 0; let offsetY = 0;
+
+        function dragWindow(e, winId) {
+            isDragging = true;
+            currentDragWindow = document.getElementById(winId);
+            bringToFront(winId);
+            // 計算滑鼠點擊位置與視窗左上角的差值
+            const rect = currentDragWindow.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging && currentDragWindow) {
+                let newX = e.clientX - offsetX;
+                let newY = e.clientY - offsetY;
+                // 防止拖出上方與左方邊界
+                if(newY < 0) newY = 0;
+                if(newX < 0) newX = 0;
+                currentDragWindow.style.left = newX + 'px';
+                currentDragWindow.style.top = newY + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            currentDragWindow = null;
+        });
+
+        // 4. 業務邏輯系統
+        function approveDoc(rowId, successMsg) {
+            document.getElementById(rowId).style.display = 'none';
+            let badge = document.getElementById('bpm-badge');
+            let count = parseInt(badge.innerText) - 1;
+            badge.innerText = count;
+            if(count === 0) badge.style.display = 'none';
+            showToast(`✅ 數位簽章授權成功！\n${successMsg}`);
+        }
+
+        function dispatchFleet() {
+            const dest = document.getElementById('fleet-dest').value;
+            const type = document.getElementById('fleet-type').value;
+            showToast(`🚁 調度指令已發送至聯合作戰中心。\n載具：${type}\n目的地：${dest}\n預計抵達時間：15 分鐘後。`);
+            closeWindow('win-fleet');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 4000);
+        }
+
+        // 任務欄更新 (裝飾用)
+        function updateTaskbar(winId, isOpen) {
+            const tb = document.getElementById('taskbar-apps');
+            const titles = { 'win-erp':'📊 ERP戰情', 'win-bpm':'✅ 公文簽核', 'win-fleet':'🚁 載具調度', 'win-mail':'✉️ 加密郵件', 'win-terminal':'💻 終端機' };
+            if(isOpen && !document.getElementById('tb-'+winId)) {
+                tb.innerHTML += `<div class="task-app" id="tb-${winId}" onclick="openWindow('${winId}')">${titles[winId]}</div>`;
+            } else if (!isOpen && document.getElementById('tb-'+winId)) {
+                document.getElementById('tb-'+winId).remove();
+            }
+        }
+    </script>
+</body>
+</html>

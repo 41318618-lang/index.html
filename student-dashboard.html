@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>學生校務入口網 | 極元科技大學</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", sans-serif; margin: 0; background: #f0f2f5; display: flex; }
+        /* 側邊選單 */
+        .sidebar { width: 250px; background: #002D56; color: white; height: 100vh; position: fixed; padding-top: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .sidebar h2 { text-align: center; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 0; }
+        .menu-item { display: block; padding: 15px 20px; color: #ddd; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .menu-item:hover { background: #A51C30; color: white; padding-left: 25px; }
+        
+        /* 主內容區 */
+        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .user-info { font-weight: bold; color: #002D56; }
+        .logout-btn { background: #A51C30; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; }
+        
+        /* 功能卡片區 */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 4px solid #002D56; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top-color: #B8860B; }
+        .card h3 { margin: 0 0 10px 0; color: #002D56; }
+        .card p { margin: 0; color: #666; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>極元學生系統<br><span style="font-size: 0.8rem; color: #B8860B;">勝發集團連線端</span></h2>
+        <a href="#" class="menu-item">🏠 首頁大廳</a>
+        <a href="#" class="menu-item">📅 本學期課表</a>
+        <a href="#" class="menu-item">📝 歷年成績查詢</a>
+        <a href="#" class="menu-item">🤒 學生請假系統</a>
+        <a href="#" class="menu-item">🎓 量子選課系統</a>
+        <a href="#" class="menu-item">💰 勝發獎學金申請</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="user-info">歡迎登入，學號：123456789 (電機資訊學院 學生)</div>
+            <a href="index.html" class="logout-btn">登出系統</a>
+        </div>
+
+        <h2 style="color: #002D56;">系統快速捷徑</h2>
+        <div class="dashboard-grid">
+            <div class="card" onclick="alert('目前成績：\n亞原子物理學：A+\n量子演算法：A\n勝發企業管理：A+')">
+                <h3>📝 成績查詢</h3>
+                <p>查詢歷年與本學期期中/期末成績。</p>
+            </div>
+            <div class="card" onclick="alert('請假系統已開啟，請上傳醫療證明或勝發集團任務派令。')">
+                <h3>🤒 線上請假</h3>
+                <p>病假、事假、公假與海外實習假申請。</p>
+            </div>
+            <div class="card" onclick="alert('選課分發中... 您已優先保留「王閔弘副校長」的 AI 倫理必修課。')">
+                <h3>🎓 選課系統</h3>
+                <p>進入第一階段/第二階段線上選課。</p>
+            </div>
+            <div class="card">
+                <h3>💳 繳費專區</h3>
+                <p>列印學雜費繳費單與勝發集團匯款帳號。</p>
+            </div>
+            <div class="card">
+                <h3>🏢 宿舍系統</h3>
+                <p>申請勝發星際宿舍與抽籤作業。</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
